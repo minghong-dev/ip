@@ -15,9 +15,7 @@ public class NiuLai {
         System.out.println("     What can I do for you?");
         System.out.println(line + "\n");
 
-        String[] tasks = new String[100];
-        // Stores whether each task in tasks has been marked as done.
-        boolean[] completed = new boolean[100];
+        Task[] tasks = new Task[100];
         int count = 0;
 
         Scanner scanner = new Scanner(System.in);
@@ -37,8 +35,7 @@ public class NiuLai {
                 System.out.println("     Here are the tasks in your list:");
 
                 for (int i = 0; i < count; i++) {
-                    String status = completed[i] ? "[X]" : "[ ]";
-                    System.out.println("     " + (i + 1) + "." + status + " " + tasks[i]);
+                    System.out.println("     " + (i + 1) + "." + tasks[i]);
                 }
 
                 System.out.println(line + "\n");
@@ -53,9 +50,9 @@ public class NiuLai {
                     if (taskIndex < 0 || taskIndex >= count) {
                         System.out.println("     That task number does not exist.");
                     } else {
-                        completed[taskIndex] = true;
+                        tasks[taskIndex].markAsDone();
                         System.out.println("     Nice! I've marked this task as done:");
-                        System.out.println("       [X] " + tasks[taskIndex]);
+                        System.out.println("       " + tasks[taskIndex]);
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("     Please provide a valid task number.");
@@ -72,9 +69,9 @@ public class NiuLai {
                     if (taskIndex < 0 || taskIndex >= count) {
                         System.out.println("     That task number does not exist.");
                     } else {
-                        completed[taskIndex] = false;
+                        tasks[taskIndex].markAsNotDone();
                         System.out.println("     OK, I've marked this task as not done yet:");
-                        System.out.println("       [ ] " + tasks[taskIndex]);
+                        System.out.println("       " + tasks[taskIndex]);
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("     Please provide a valid task number.");
@@ -84,7 +81,7 @@ public class NiuLai {
             }
 
             System.out.println("     added: " + command);
-            tasks[count++] = command;
+            tasks[count++] = new Task(command);
             System.out.println(line + "\n");
         }
     }
