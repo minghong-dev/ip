@@ -64,6 +64,25 @@ public class NiuLai {
                 continue;
             }
 
+            if (command.startsWith("unmark ")) {
+                try {
+                    int taskNumber = Integer.parseInt(command.substring(7).trim());
+                    int taskIndex = taskNumber - 1;
+
+                    if (taskIndex < 0 || taskIndex >= count) {
+                        System.out.println("     That task number does not exist.");
+                    } else {
+                        completed[taskIndex] = false;
+                        System.out.println("     OK, I've marked this task as not done yet:");
+                        System.out.println("       [ ] " + tasks[taskIndex]);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("     Please provide a valid task number.");
+                }
+                System.out.println(line + "\n");
+                continue;
+            }
+
             System.out.println("     added: " + command);
             tasks[count++] = command;
             System.out.println(line + "\n");
