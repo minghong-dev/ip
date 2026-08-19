@@ -15,6 +15,9 @@ public class NiuLai {
         System.out.println("     What can I do for you?");
         System.out.println(line + "\n");
 
+        String[] commands = new String[100];
+        int count = 0;
+
         Scanner scanner = new Scanner(System.in);
 
         while (scanner.hasNextLine()) {
@@ -28,7 +31,16 @@ public class NiuLai {
                 break;
             }
 
-            System.out.println("     " + command);
+            if (command.equals("list")) {
+                for (int i = 0; i < count; i++) {
+                    System.out.println("     " + (i + 1) + ". " + commands[i]);
+                }
+                System.out.println(line + "\n");
+                continue;
+            }
+
+            System.out.println("     added: " + command);
+            commands[count++] = command;
             System.out.println(line + "\n");
         }
     }
