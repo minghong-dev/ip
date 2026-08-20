@@ -19,7 +19,7 @@ Verify that the application starts successfully and exits with the expected fare
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -53,7 +53,7 @@ Verify that todo, deadline, and event commands preserve their descriptions and d
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -100,6 +100,50 @@ bye
      1.[T][ ] borrow book
      2.[D][ ] return book (by: June 6th)
      3.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+```
+
+## Test Case 3: Explain invalid input
+
+### Aim
+
+Verify that an empty todo description and an unknown command produce helpful error messages and that the application continues accepting commands.
+
+### Command
+
+```text
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+```
+
+### Inputs
+
+```text
+todo
+blah
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     OOPS!!! A todo needs a description. Try: todo <description>.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     OOPS!!! I don't recognise that command. Try 'list' to view your tasks.
     ____________________________________________________________
 
     ____________________________________________________________
