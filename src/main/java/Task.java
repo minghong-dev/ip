@@ -47,12 +47,21 @@ public class Task {
     }
 
     /**
+     * Returns the one-letter type marker used when displaying this task.
+     *
+     * @return the task type marker
+     */
+    public String getTypeIcon() {
+        return "T";
+    }
+
+    /**
      * Returns the display representation of this task.
      *
      * @return the status icon and task description
      */
     @Override
     public String toString() {
-        return "[" + getStatusIcon() + "] " + description;
+        return "[" + getTypeIcon() + "][" + getStatusIcon() + "] " + description;
     }
 }

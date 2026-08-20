@@ -80,9 +80,64 @@ public class NiuLai {
                 continue;
             }
 
-            System.out.println("     added: " + command);
-            tasks[count++] = new Task(command);
+            if (command.startsWith("todo ")) {
+                String description = command.substring(5).trim();
+                if (!description.isEmpty()) {
+                    tasks[count++] = new Todo(description);
+                    printTaskAdded(tasks[count - 1], count, line);
+                }
+                continue;
+            }
+
+            if (command.startsWith("deadline ")) {
+                String details = command.substring(9).trim();
+                int byIndex = details.indexOf(" /by ");
+
+                if (byIndex > 0) {
+                    String description = details.substring(0, byIndex).trim();
+                    String by = details.substring(byIndex + 5).trim();
+                    
+                    if (!description.isEmpty() && !by.isEmpty()) {
+                        tasks[count++] = new Deadline(description, by);
+                        printTaskAdded(tasks[count - 1], count, line);
+                        continue;
+                    }
+                }
+            }
+
+            if (command.startsWith("event ")) {
+                String details = command.substring(6).trim();
+                int fromIndex = details.indexOf(" /from ");
+                int toIndex = details.indexOf(" /to ", fromIndex + 7);
+
+                if (fromIndex > 0 && toIndex > fromIndex) {
+                    String description = details.substring(0, fromIndex).trim();
+                    String from = details.substring(fromIndex + 7, toIndex).trim();
+                    String to = details.substring(toIndex + 5).trim();
+                    if (!description.isEmpty() && !from.isEmpty() && !to.isEmpty()) {
+                        tasks[count++] = new Event(description, from, to);
+                        printTaskAdded(tasks[count - 1], count, line);
+                        continue;
+                    }
+                }
+            }
+
+            System.out.println("     I don't understand that command.");
             System.out.println(line + "\n");
         }
+    }
+
+    /**
+     * Prints the confirmation shown after a task has been added.
+     *
+     * @param task the task that was added
+     * @param count the new number of tasks
+     * @param line the separator line used by the user interface
+     */
+    private static void printTaskAdded(Task task, int count, String line) {
+        System.out.println("     Got it. I've added this task:");
+        System.out.println("       " + task);
+        System.out.println("     Now you have " + count + " tasks in the list.");
+        System.out.println(line + "\n");
     }
 }
