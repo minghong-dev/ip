@@ -96,7 +96,7 @@ public class NiuLai {
                 if (byIndex > 0) {
                     String description = details.substring(0, byIndex).trim();
                     String by = details.substring(byIndex + 5).trim();
-                    
+
                     if (!description.isEmpty() && !by.isEmpty()) {
                         tasks[count++] = new Deadline(description, by);
                         printTaskAdded(tasks[count - 1], count, line);
