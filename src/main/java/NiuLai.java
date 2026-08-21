@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -15,8 +16,7 @@ public class NiuLai {
         System.out.println("     What can I do for you?");
         System.out.println(line + "\n");
 
-        Task[] tasks = new Task[100];
-        int count = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         Scanner scanner = new Scanner(System.in);
 
@@ -35,8 +35,8 @@ public class NiuLai {
                 if (command.equals("list")) {
                     System.out.println("     Here are the tasks in your list:");
 
-                    for (int i = 0; i < count; i++) {
-                        System.out.println("     " + (i + 1) + "." + tasks[i]);
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println("     " + (i + 1) + "." + tasks.get(i));
                     }
 
                     System.out.println(line + "\n");
@@ -44,19 +44,29 @@ public class NiuLai {
                 }
 
                 if (isCommand(command, "mark")) {
-                    int taskIndex = getTaskIndex(command, "mark", count);
-                    tasks[taskIndex].markAsDone();
+                    int taskIndex = getTaskIndex(command, "mark", tasks.size());
+                    tasks.get(taskIndex).markAsDone();
                     System.out.println("     Nice! I've marked this task as done:");
-                    System.out.println("       " + tasks[taskIndex]);
+                    System.out.println("       " + tasks.get(taskIndex));
                     System.out.println(line + "\n");
                     continue;
                 }
 
                 if (isCommand(command, "unmark")) {
-                    int taskIndex = getTaskIndex(command, "unmark", count);
-                    tasks[taskIndex].markAsNotDone();
+                    int taskIndex = getTaskIndex(command, "unmark", tasks.size());
+                    tasks.get(taskIndex).markAsNotDone();
                     System.out.println("     OK, I've marked this task as not done yet:");
-                    System.out.println("       " + tasks[taskIndex]);
+                    System.out.println("       " + tasks.get(taskIndex));
+                    System.out.println(line + "\n");
+                    continue;
+                }
+
+                if (isCommand(command, "delete")) {
+                    int taskIndex = getTaskIndex(command, "delete", tasks.size());
+                    Task deletedTask = tasks.remove(taskIndex);
+                    System.out.println("     Noted. I've removed this task:");
+                    System.out.println("       " + deletedTask);
+                    System.out.println("     Now you have " + tasks.size() + " tasks in the list.");
                     System.out.println(line + "\n");
                     continue;
                 }
@@ -68,9 +78,8 @@ public class NiuLai {
                                 "NOOO!!! A todo needs a description. Try: todo <description>."
                         );
                     }
-                    ensureSpaceForTask(count);
-                    tasks[count++] = new Todo(description);
-                    printTaskAdded(tasks[count - 1], count, line);
+                    tasks.add(new Todo(description));
+                    printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
 
@@ -93,9 +102,8 @@ public class NiuLai {
                         );
                     }
 
-                    ensureSpaceForTask(count);
-                    tasks[count++] = new Deadline(description, by);
-                    printTaskAdded(tasks[count - 1], count, line);
+                    tasks.add(new Deadline(description, by));
+                    printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
 
@@ -120,9 +128,8 @@ public class NiuLai {
                         );
                     }
 
-                    ensureSpaceForTask(count);
-                    tasks[count++] = new Event(description, from, to);
-                    printTaskAdded(tasks[count - 1], count, line);
+                    tasks.add(new Event(description, from, to));
+                    printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
 
@@ -159,15 +166,15 @@ public class NiuLai {
     }
 
     /**
-     * Parses and validates a task number from a mark or unmark command.
+     * Parses and validates a task number from a mark, unmark, or delete command.
      *
      * @param command the complete user input
      * @param commandName the command being processed
-     * @param count the number of tasks currently in the list
+     * @param taskCount the number of tasks currently in the list
      * @return the zero-based task index
      * @throws NiuLaiException if the task number is missing, invalid, or out of range
      */
-    private static int getTaskIndex(String command, String commandName, int count)
+    private static int getTaskIndex(String command, String commandName, int taskCount)
             throws NiuLaiException {
         String argument = getArgument(command, commandName);
 
@@ -187,25 +194,13 @@ public class NiuLai {
             );
         }
 
-        if (taskNumber < 1 || taskNumber > count) {
+        if (taskNumber < 1 || taskNumber > taskCount) {
             throw new NiuLaiException(
                     "NOOO!!! Task " + taskNumber + " does not exist. Use 'list' to see your tasks."
             );
         }
 
         return taskNumber - 1;
-    }
-
-    /**
-     * Prevents the fixed-size task list from overflowing.
-     *
-     * @param count the current number of tasks
-     * @throws NiuLaiException if no more tasks can be added
-     */
-    private static void ensureSpaceForTask(int count) throws NiuLaiException {
-        if (count >= 100) {
-            throw new NiuLaiException("NOOO!!! Your task list is full. Remove a task before adding another.");
-        }
     }
 
     /**
