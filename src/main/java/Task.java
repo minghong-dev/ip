@@ -5,8 +5,8 @@ public class Task {
     /** The text describing the task. */
     protected String description;
 
-    /** Whether the task has been completed. */
-    protected boolean isDone;
+    /** The completion state of the task. */
+    private TaskStatus status;
 
     /**
      * Creates a new incomplete task.
@@ -15,26 +15,35 @@ public class Task {
      */
     public Task(String description) {
         this.description = description;
-        this.isDone = false;
+        this.status = TaskStatus.PENDING;
     }
 
     /**
      * Returns the status icon used when displaying this task.
      *
-     * @return {@code X} if the task is done, otherwise a blank space
+     * @return {@code X} if the task is completed, otherwise a blank space
      */
     public String getStatusIcon() {
-        return isDone ? "X" : " ";
+        return status == TaskStatus.COMPLETED ? "X" : " ";
     }
 
     /** Marks this task as done. */
     public void markAsDone() {
-        isDone = true;
+        status = TaskStatus.COMPLETED;
     }
 
     /** Marks this task as not done. */
     public void markAsNotDone() {
-        isDone = false;
+        status = TaskStatus.PENDING;
+    }
+
+    /**
+     * Returns the completion state of this task.
+     *
+     * @return the task status
+     */
+    public TaskStatus getStatus() {
+        return status;
     }
 
     /**

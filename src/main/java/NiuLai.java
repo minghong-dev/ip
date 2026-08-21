@@ -26,13 +26,13 @@ public class NiuLai {
             System.out.println(line);
 
             try {
-                if (command.equals("bye")) {
+                if (Command.BYE.matchesExactly(command)) {
                     System.out.println("     Bye. Hope not to see you again.");
                     System.out.println(line);
                     break;
                 }
 
-                if (command.equals("list")) {
+                if (Command.LIST.matchesExactly(command)) {
                     System.out.println("     Here are the tasks in your list:");
 
                     for (int i = 0; i < tasks.size(); i++) {
@@ -43,8 +43,8 @@ public class NiuLai {
                     continue;
                 }
 
-                if (isCommand(command, "mark")) {
-                    int taskIndex = getTaskIndex(command, "mark", tasks.size());
+                if (Command.MARK.matches(command)) {
+                    int taskIndex = getTaskIndex(command, Command.MARK, tasks.size());
                     tasks.get(taskIndex).markAsDone();
                     System.out.println("     Nice! I've marked this task as done:");
                     System.out.println("       " + tasks.get(taskIndex));
@@ -52,8 +52,8 @@ public class NiuLai {
                     continue;
                 }
 
-                if (isCommand(command, "unmark")) {
-                    int taskIndex = getTaskIndex(command, "unmark", tasks.size());
+                if (Command.UNMARK.matches(command)) {
+                    int taskIndex = getTaskIndex(command, Command.UNMARK, tasks.size());
                     tasks.get(taskIndex).markAsNotDone();
                     System.out.println("     OK, I've marked this task as not done yet:");
                     System.out.println("       " + tasks.get(taskIndex));
@@ -61,8 +61,8 @@ public class NiuLai {
                     continue;
                 }
 
-                if (isCommand(command, "delete")) {
-                    int taskIndex = getTaskIndex(command, "delete", tasks.size());
+                if (Command.DELETE.matches(command)) {
+                    int taskIndex = getTaskIndex(command, Command.DELETE, tasks.size());
                     Task deletedTask = tasks.remove(taskIndex);
                     System.out.println("     Noted. I've removed this task:");
                     System.out.println("       " + deletedTask);
@@ -71,20 +71,22 @@ public class NiuLai {
                     continue;
                 }
 
-                if (isCommand(command, "todo")) {
-                    String description = getArgument(command, "todo");
+                if (Command.TODO.matches(command)) {
+                    String description = getArgument(command, Command.TODO);
+
                     if (description.isEmpty()) {
                         throw new NiuLaiException(
                                 "NOOO!!! A todo needs a description. Try: todo <description>."
                         );
                     }
+
                     tasks.add(new Todo(description));
                     printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
 
-                if (isCommand(command, "deadline")) {
-                    String details = getArgument(command, "deadline");
+                if (Command.DEADLINE.matches(command)) {
+                    String details = getArgument(command, Command.DEADLINE);
                     int byIndex = details.indexOf(" /by ");
 
                     if (byIndex <= 0) {
@@ -107,8 +109,8 @@ public class NiuLai {
                     continue;
                 }
 
-                if (isCommand(command, "event")) {
-                    String details = getArgument(command, "event");
+                if (Command.EVENT.matches(command)) {
+                    String details = getArgument(command, Command.EVENT);
                     int fromIndex = details.indexOf(" /from ");
                     int toIndex = details.indexOf(" /to ", fromIndex + 7);
 
@@ -144,43 +146,33 @@ public class NiuLai {
     }
 
     /**
-     * Checks whether an input is a command or starts with a command and its argument.
-     *
-     * @param command the complete user input
-     * @param commandName the command to check
-     * @return whether the input belongs to the command
-     */
-    private static boolean isCommand(String command, String commandName) {
-        return command.equals(commandName) || command.startsWith(commandName + " ");
-    }
-
-    /**
      * Returns the text after a command name.
      *
-     * @param command the complete user input
-     * @param commandName the command whose argument should be returned
+     * @param input the complete user input
+     * @param command the command whose argument should be returned
      * @return the trimmed command argument
      */
-    private static String getArgument(String command, String commandName) {
-        return command.substring(commandName.length()).trim();
+    private static String getArgument(String input, Command command) {
+        return input.substring(command.getKeyword().length()).trim();
     }
 
     /**
      * Parses and validates a task number from a mark, unmark, or delete command.
      *
-     * @param command the complete user input
-     * @param commandName the command being processed
+     * @param input the complete user input
+     * @param command the command being processed
      * @param taskCount the number of tasks currently in the list
      * @return the zero-based task index
      * @throws NiuLaiException if the task number is missing, invalid, or out of range
      */
-    private static int getTaskIndex(String command, String commandName, int taskCount)
+    private static int getTaskIndex(String input, Command command, int taskCount)
             throws NiuLaiException {
-        String argument = getArgument(command, commandName);
+        String argument = getArgument(input, command);
 
         if (argument.isEmpty()) {
             throw new NiuLaiException(
-                    "NOOO!!! '" + commandName + "' needs a task number, such as '" + commandName + " 1'."
+                    "NOOO!!! '" + command.getKeyword() + "' needs a task number, such as '"
+                            + command.getKeyword() + " 1'."
             );
         }
 
@@ -190,7 +182,8 @@ public class NiuLai {
             taskNumber = Integer.parseInt(argument);
         } catch (NumberFormatException e) {
             throw new NiuLaiException(
-                    "NOOO!!! Task numbers must be positive whole numbers, such as '" + commandName + " 1'."
+                    "NOOO!!! Task numbers must be positive whole numbers, such as '"
+                            + command.getKeyword() + " 1'."
             );
         }
 

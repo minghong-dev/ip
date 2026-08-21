@@ -19,7 +19,7 @@ Verify that the application starts successfully and exits with the expected fare
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -53,7 +53,7 @@ Verify that missing, non-numeric, zero, and out-of-range task numbers are reject
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -137,7 +137,7 @@ Verify that a blank command is rejected without adding a task and that a valid c
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -189,7 +189,7 @@ Verify that todo, deadline, and event commands preserve their descriptions and d
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -252,7 +252,7 @@ Verify that an empty todo description and an unknown command produce helpful err
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -296,7 +296,7 @@ Verify that malformed todo, deadline, and event commands are rejected, while val
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -374,7 +374,7 @@ Verify that a task can be deleted by its displayed number, that the remaining ta
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
 ```
 
 ### Inputs
