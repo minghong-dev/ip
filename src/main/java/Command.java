@@ -63,6 +63,15 @@ public enum Command {
      * @return whether the input belongs to this command
      */
     public boolean matches(String input) {
-        return input.equals(keyword) || input.startsWith(keyword + " ");
+        if (input.equals(keyword)) {
+            return true;
+        }
+
+        if (!input.startsWith(keyword) || input.length() == keyword.length()) {
+            return false;
+        }
+
+        char separator = input.charAt(keyword.length());
+        return Character.isWhitespace(separator) || Character.isSpaceChar(separator);
     }
 }

@@ -13,7 +13,11 @@ public class Deadline extends Task {
      */
     public Deadline(String description, String by) {
         super(description);
-        this.by = by;
+        if (by == null || by.isBlank()) {
+            throw new IllegalArgumentException("Deadline time cannot be blank.");
+        }
+
+        this.by = by.strip();
     }
 
     @Override
@@ -23,7 +27,7 @@ public class Deadline extends Task {
 
     @Override
     public String toStorageString() {
-        return super.toStorageString() + " | " + by;
+        return super.toStorageString() + " | " + escapeStorageField(by);
     }
 
     @Override

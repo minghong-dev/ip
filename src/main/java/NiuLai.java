@@ -1,11 +1,21 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Runs the NiuLai command-line chatbot.
  */
 public class NiuLai {
+    /** Matches the description and /by field of a deadline command. */
+    private static final Pattern DEADLINE_PATTERN =
+            Pattern.compile("^(.+?)\\s+/by\\s+(.+)$");
+
+    /** Matches the description, /from field, and /to field of an event command. */
+    private static final Pattern EVENT_PATTERN =
+            Pattern.compile("^(.+?)\\s+/from\\s+(.+?)\\s+/to\\s+(.+)$");
+
     public static void main(String[] args) {
         String banner = "|\\ | | |  | |     /\\  |\n"
                 + "| \\| | \\__/ |___ /~~\\ |\n";
@@ -17,12 +27,12 @@ public class NiuLai {
         System.out.println("     What can I do for you?");
         System.out.println(line + "\n");
 
-        ArrayList<Task> tasks = loadTasks();
+        ArrayList<Task> tasks = loadTasks(line);
 
         Scanner scanner = new Scanner(System.in);
 
         while (scanner.hasNextLine()) {
-            String command = scanner.nextLine().trim();
+            String command = scanner.nextLine().strip();
 
             System.out.println(line);
 
@@ -46,20 +56,34 @@ public class NiuLai {
 
                 if (Command.MARK.matches(command)) {
                     int taskIndex = getTaskIndex(command, Command.MARK, tasks.size());
-                    tasks.get(taskIndex).markAsDone();
-                    saveTasks(tasks);
+                    Task task = tasks.get(taskIndex);
+                    TaskStatus previousStatus = task.getStatus();
+                    task.markAsDone();
+                    try {
+                        saveTasks(tasks);
+                    } catch (NiuLaiException e) {
+                        restoreStatus(task, previousStatus);
+                        throw e;
+                    }
                     System.out.println("     Nice! I've marked this task as done:");
-                    System.out.println("       " + tasks.get(taskIndex));
+                    System.out.println("       " + task);
                     System.out.println(line + "\n");
                     continue;
                 }
 
                 if (Command.UNMARK.matches(command)) {
                     int taskIndex = getTaskIndex(command, Command.UNMARK, tasks.size());
-                    tasks.get(taskIndex).markAsNotDone();
-                    saveTasks(tasks);
+                    Task task = tasks.get(taskIndex);
+                    TaskStatus previousStatus = task.getStatus();
+                    task.markAsNotDone();
+                    try {
+                        saveTasks(tasks);
+                    } catch (NiuLaiException e) {
+                        restoreStatus(task, previousStatus);
+                        throw e;
+                    }
                     System.out.println("     OK, I've marked this task as not done yet:");
-                    System.out.println("       " + tasks.get(taskIndex));
+                    System.out.println("       " + task);
                     System.out.println(line + "\n");
                     continue;
                 }
@@ -67,7 +91,12 @@ public class NiuLai {
                 if (Command.DELETE.matches(command)) {
                     int taskIndex = getTaskIndex(command, Command.DELETE, tasks.size());
                     Task deletedTask = tasks.remove(taskIndex);
-                    saveTasks(tasks);
+                    try {
+                        saveTasks(tasks);
+                    } catch (NiuLaiException e) {
+                        tasks.add(taskIndex, deletedTask);
+                        throw e;
+                    }
                     System.out.println("     Noted. I've removed this task:");
                     System.out.println("       " + deletedTask);
                     System.out.println("     Now you have " + tasks.size() + " tasks in the list.");
@@ -84,24 +113,23 @@ public class NiuLai {
                         );
                     }
 
-                    tasks.add(new Todo(description));
-                    saveTasks(tasks);
+                    addTaskAndSave(tasks, new Todo(description));
                     printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
 
                 if (Command.DEADLINE.matches(command)) {
                     String details = getArgument(command, Command.DEADLINE);
-                    int byIndex = details.indexOf(" /by ");
+                    Matcher matcher = DEADLINE_PATTERN.matcher(details);
 
-                    if (byIndex <= 0) {
+                    if (!matcher.matches()) {
                         throw new NiuLaiException(
                                 "NOOO!!! A deadline must look like: deadline <description> /by <date or time>."
                         );
                     }
 
-                    String description = details.substring(0, byIndex).trim();
-                    String by = details.substring(byIndex + 5).trim();
+                    String description = matcher.group(1).strip();
+                    String by = matcher.group(2).strip();
 
                     if (description.isEmpty() || by.isEmpty()) {
                         throw new NiuLaiException(
@@ -109,26 +137,24 @@ public class NiuLai {
                         );
                     }
 
-                    tasks.add(new Deadline(description, by));
-                    saveTasks(tasks);
+                    addTaskAndSave(tasks, new Deadline(description, by));
                     printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
 
                 if (Command.EVENT.matches(command)) {
                     String details = getArgument(command, Command.EVENT);
-                    int fromIndex = details.indexOf(" /from ");
-                    int toIndex = details.indexOf(" /to ", fromIndex + 7);
+                    Matcher matcher = EVENT_PATTERN.matcher(details);
 
-                    if (fromIndex <= 0 || toIndex <= fromIndex) {
+                    if (!matcher.matches()) {
                         throw new NiuLaiException(
                                 "NOOO!!! An event must look like: event <description> /from <start> /to <end>."
                         );
                     }
 
-                    String description = details.substring(0, fromIndex).trim();
-                    String from = details.substring(fromIndex + 7, toIndex).trim();
-                    String to = details.substring(toIndex + 5).trim();
+                    String description = matcher.group(1).strip();
+                    String from = matcher.group(2).strip();
+                    String to = matcher.group(3).strip();
 
                     if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
                         throw new NiuLaiException(
@@ -136,8 +162,7 @@ public class NiuLai {
                         );
                     }
 
-                    tasks.add(new Event(description, from, to));
-                    saveTasks(tasks);
+                    addTaskAndSave(tasks, new Event(description, from, to));
                     printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
@@ -160,7 +185,38 @@ public class NiuLai {
      * @return the trimmed command argument
      */
     private static String getArgument(String input, Command command) {
-        return input.substring(command.getKeyword().length()).trim();
+        return input.substring(command.getKeyword().length()).strip();
+    }
+
+    /**
+     * Adds a task and rolls the addition back if saving fails.
+     *
+     * @param tasks the current task list
+     * @param task the task to add
+     * @throws NiuLaiException if the updated list cannot be saved
+     */
+    private static void addTaskAndSave(ArrayList<Task> tasks, Task task) throws NiuLaiException {
+        tasks.add(task);
+        try {
+            saveTasks(tasks);
+        } catch (NiuLaiException e) {
+            tasks.remove(tasks.size() - 1);
+            throw e;
+        }
+    }
+
+    /**
+     * Restores a task's status after a failed save.
+     *
+     * @param task the task whose status should be restored
+     * @param status the previous status
+     */
+    private static void restoreStatus(Task task, TaskStatus status) {
+        if (status == TaskStatus.COMPLETED) {
+            task.markAsDone();
+        } else {
+            task.markAsNotDone();
+        }
     }
 
     /**
@@ -172,7 +228,7 @@ public class NiuLai {
     private static void saveTasks(ArrayList<Task> tasks) throws NiuLaiException {
         try {
             Storage.save(tasks);
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
         }
     }
@@ -182,11 +238,13 @@ public class NiuLai {
      *
      * @return the saved task list or an empty list when no usable data is available
      */
-    private static ArrayList<Task> loadTasks() {
+    private static ArrayList<Task> loadTasks(String line) {
         try {
             return Storage.load();
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
+            System.out.println(line);
             System.out.println("     NOOO!!! I couldn't load your tasks from disk.");
+            System.out.println(line + "\n");
             return new ArrayList<>();
         }
     }

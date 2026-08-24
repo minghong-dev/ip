@@ -14,7 +14,11 @@ public class Task {
      * @param description the text describing the task
      */
     public Task(String description) {
-        this.description = description;
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Task description cannot be blank.");
+        }
+
+        this.description = description.strip();
         this.status = TaskStatus.PENDING;
     }
 
@@ -71,7 +75,18 @@ public class Task {
      */
     public String toStorageString() {
         int completionState = status == TaskStatus.COMPLETED ? 1 : 0;
-        return getTypeIcon() + " | " + completionState + " | " + description;
+        return getTypeIcon() + " | " + completionState + " | "
+                + escapeStorageField(description);
+    }
+
+    /**
+     * Escapes characters that have a special meaning in the storage format.
+     *
+     * @param value the field to escape
+     * @return the escaped field
+     */
+    protected static String escapeStorageField(String value) {
+        return value.replace("\\", "\\\\").replace("|", "\\|");
     }
 
     /**
