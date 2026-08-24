@@ -19,7 +19,7 @@ Verify that the application starts successfully and exits with the expected fare
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -53,7 +53,7 @@ Verify that missing, non-numeric, zero, and out-of-range task numbers are reject
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -137,7 +137,7 @@ Verify that a blank command is rejected without adding a task and that a valid c
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -189,7 +189,7 @@ Verify that todo, deadline, and event commands preserve their descriptions and d
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -252,7 +252,7 @@ Verify that an empty todo description and an unknown command produce helpful err
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -296,7 +296,7 @@ Verify that malformed todo, deadline, and event commands are rejected, while val
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -374,7 +374,7 @@ Verify that a task can be deleted by its displayed number, that the remaining ta
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -458,7 +458,7 @@ Verify that adding, marking, and deleting tasks automatically writes the current
 ### Command
 
 ```text
-if exist data\niulai.txt del data\niulai.txt && javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -517,4 +517,49 @@ bye
     ____________________________________________________________
 T | 1 | read book
 E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+## Test Case 9: Load saved tasks at startup
+
+### Aim
+
+Verify that a new chatbot session loads the tasks saved by the previous session, including each task type and completion state.
+
+### Setup
+
+This case runs after Test Case 8, which leaves `data\niulai.txt` containing the saved tasks shown below.
+
+### Command
+
+```text
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+```
+
+### Inputs
+
+```text
+list
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][X] read book
+     2.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
 ```

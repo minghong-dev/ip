@@ -1,5 +1,5 @@
-import java.util.ArrayList;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -17,7 +17,7 @@ public class NiuLai {
         System.out.println("     What can I do for you?");
         System.out.println(line + "\n");
 
-        ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<Task> tasks = loadTasks();
 
         Scanner scanner = new Scanner(System.in);
 
@@ -174,6 +174,20 @@ public class NiuLai {
             Storage.save(tasks);
         } catch (IOException e) {
             throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+        }
+    }
+
+    /**
+     * Loads the saved task list, starting with an empty list if loading fails.
+     *
+     * @return the saved task list or an empty list when no usable data is available
+     */
+    private static ArrayList<Task> loadTasks() {
+        try {
+            return Storage.load();
+        } catch (IOException e) {
+            System.out.println("     NOOO!!! I couldn't load your tasks from disk.");
+            return new ArrayList<>();
         }
     }
 
