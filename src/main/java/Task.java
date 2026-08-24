@@ -65,6 +65,16 @@ public class Task {
     }
 
     /**
+     * Returns the line used to save this task to disk.
+     *
+     * @return the task type, completion state, and description
+     */
+    public String toStorageString() {
+        int completionState = status == TaskStatus.COMPLETED ? 1 : 0;
+        return getTypeIcon() + " | " + completionState + " | " + description;
+    }
+
+    /**
      * Returns the display representation of this task.
      *
      * @return the status icon and task description

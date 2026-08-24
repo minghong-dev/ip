@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -46,6 +47,7 @@ public class NiuLai {
                 if (Command.MARK.matches(command)) {
                     int taskIndex = getTaskIndex(command, Command.MARK, tasks.size());
                     tasks.get(taskIndex).markAsDone();
+                    saveTasks(tasks);
                     System.out.println("     Nice! I've marked this task as done:");
                     System.out.println("       " + tasks.get(taskIndex));
                     System.out.println(line + "\n");
@@ -55,6 +57,7 @@ public class NiuLai {
                 if (Command.UNMARK.matches(command)) {
                     int taskIndex = getTaskIndex(command, Command.UNMARK, tasks.size());
                     tasks.get(taskIndex).markAsNotDone();
+                    saveTasks(tasks);
                     System.out.println("     OK, I've marked this task as not done yet:");
                     System.out.println("       " + tasks.get(taskIndex));
                     System.out.println(line + "\n");
@@ -64,6 +67,7 @@ public class NiuLai {
                 if (Command.DELETE.matches(command)) {
                     int taskIndex = getTaskIndex(command, Command.DELETE, tasks.size());
                     Task deletedTask = tasks.remove(taskIndex);
+                    saveTasks(tasks);
                     System.out.println("     Noted. I've removed this task:");
                     System.out.println("       " + deletedTask);
                     System.out.println("     Now you have " + tasks.size() + " tasks in the list.");
@@ -81,6 +85,7 @@ public class NiuLai {
                     }
 
                     tasks.add(new Todo(description));
+                    saveTasks(tasks);
                     printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
@@ -105,6 +110,7 @@ public class NiuLai {
                     }
 
                     tasks.add(new Deadline(description, by));
+                    saveTasks(tasks);
                     printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
@@ -131,6 +137,7 @@ public class NiuLai {
                     }
 
                     tasks.add(new Event(description, from, to));
+                    saveTasks(tasks);
                     printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
                     continue;
                 }
@@ -154,6 +161,20 @@ public class NiuLai {
      */
     private static String getArgument(String input, Command command) {
         return input.substring(command.getKeyword().length()).trim();
+    }
+
+    /**
+     * Saves the current task list and turns file-system failures into a chatbot error.
+     *
+     * @param tasks the current task list
+     * @throws NiuLaiException if the task list cannot be written to disk
+     */
+    private static void saveTasks(ArrayList<Task> tasks) throws NiuLaiException {
+        try {
+            Storage.save(tasks);
+        } catch (IOException e) {
+            throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+        }
     }
 
     /**
