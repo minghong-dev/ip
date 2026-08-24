@@ -449,7 +449,49 @@ bye
     ____________________________________________________________
 ```
 
-## Test Case 8: Preserve special characters when saving
+## Test Case 8: Start with no data folder
+
+### Aim
+
+Verify that the chatbot starts when both the data folder and file are absent, and creates them automatically when the first task is saved.
+
+### Command
+
+```text
+(if exist data rmdir /s /q data) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+```
+
+### Inputs
+
+```text
+todo first run
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] first run
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+T | 0 | first run
+```
+
+## Test Case 9: Preserve special characters when saving
 
 ### Aim
 
@@ -515,15 +557,15 @@ D | 0 | submit \| report | June \| 6th
 E | 0 | team \| sync | 10 \| 11 | 12 \| 13
 ```
 
-## Test Case 9: Load escaped task fields
+## Test Case 10: Load escaped task fields
 
 ### Aim
 
-Verify that escaped pipes and backslashes are decoded when the chatbot starts with the file produced by Test Case 8.
+Verify that escaped pipes and backslashes are decoded when the chatbot starts with the file produced by Test Case 9.
 
 ### Setup
 
-This case runs after Test Case 8, which leaves the escaped task data in `data\niulai.txt`.
+This case runs after Test Case 9, which leaves the escaped task data in `data\niulai.txt`.
 
 ### Command
 
@@ -561,7 +603,7 @@ bye
     ____________________________________________________________
 ```
 
-## Test Case 10: Recover from malformed saved data
+## Test Case 11: Recover from malformed saved data
 
 ### Aim
 
@@ -617,7 +659,7 @@ bye
     ____________________________________________________________
 ```
 
-## Test Case 11: Save tasks after list changes
+## Test Case 12: Save tasks after list changes
 
 ### Aim
 
@@ -687,7 +729,7 @@ T | 1 | read book
 E | 0 | project meeting | Aug 6th 2pm | 4pm
 ```
 
-## Test Case 12: Load saved tasks at startup
+## Test Case 13: Load saved tasks at startup
 
 ### Aim
 
@@ -695,7 +737,7 @@ Verify that a new chatbot session loads the tasks saved by the previous session,
 
 ### Setup
 
-This case runs after Test Case 11, which leaves `data\niulai.txt` containing the saved tasks shown below.
+This case runs after Test Case 12, which leaves `data\niulai.txt` containing the saved tasks shown below.
 
 ### Command
 
