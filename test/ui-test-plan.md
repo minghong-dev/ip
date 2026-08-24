@@ -19,7 +19,7 @@ Verify that the application starts successfully and exits with the expected fare
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -53,7 +53,7 @@ Verify that missing, non-numeric, zero, and out-of-range task numbers are reject
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -137,7 +137,7 @@ Verify that a blank command is rejected without adding a task and that a valid c
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -189,7 +189,7 @@ Verify that todo, deadline, and event commands preserve their descriptions and d
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -252,7 +252,7 @@ Verify that an empty todo description and an unknown command produce helpful err
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -296,7 +296,7 @@ Verify that malformed todo, deadline, and event commands are rejected, while val
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -374,7 +374,7 @@ Verify that a task can be deleted by its displayed number, that the remaining ta
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -441,6 +441,331 @@ bye
     ____________________________________________________________
      Here are the tasks in your list:
      1.[T][ ] read book
+     2.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+```
+
+## Test Case 8: Start with no data folder
+
+### Aim
+
+Verify that the chatbot starts when both the data folder and file are absent, and creates them automatically when the first task is saved.
+
+### Command
+
+```text
+(if exist data rmdir /s /q data) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+```
+
+### Inputs
+
+```text
+todo first run
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] first run
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+T | 0 | first run
+```
+
+## Test Case 9: Preserve special characters when saving
+
+### Aim
+
+Verify that flexible whitespace is accepted and that pipes and backslashes in task fields are escaped in the file without changing the displayed task text.
+
+### Command
+
+```text
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+```
+
+### Inputs
+
+```text
+  todo   read | review \ draft
+deadline submit | report /by June | 6th
+event team | sync /from 10 | 11 /to 12 | 13
+list
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] read | review \ draft
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] submit | report (by: June | 6th)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [E][ ] team | sync (from: 10 | 11 to: 12 | 13)
+     Now you have 3 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] read | review \ draft
+     2.[D][ ] submit | report (by: June | 6th)
+     3.[E][ ] team | sync (from: 10 | 11 to: 12 | 13)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+T | 0 | read \| review \\ draft
+D | 0 | submit \| report | June \| 6th
+E | 0 | team \| sync | 10 \| 11 | 12 \| 13
+```
+
+## Test Case 10: Load escaped task fields
+
+### Aim
+
+Verify that escaped pipes and backslashes are decoded when the chatbot starts with the file produced by Test Case 9.
+
+### Setup
+
+This case runs after Test Case 9, which leaves the escaped task data in `data\niulai.txt`.
+
+### Command
+
+```text
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+```
+
+### Inputs
+
+```text
+list
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] read | review \ draft
+     2.[D][ ] submit | report (by: June | 6th)
+     3.[E][ ] team | sync (from: 10 | 11 to: 12 | 13)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+```
+
+## Test Case 11: Recover from malformed saved data
+
+### Aim
+
+Verify that malformed saved data produces a helpful error without crashing the chatbot, and that later commands still work.
+
+### Command
+
+```text
+(if not exist data mkdir data) & (echo malformed>data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+```
+
+### Inputs
+
+```text
+list
+todo recovered task
+list
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     NOOO!!! I couldn't load your tasks from disk.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] recovered task
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] recovered task
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+```
+
+## Test Case 12: Save tasks after list changes
+
+### Aim
+
+Verify that adding, marking, and deleting tasks automatically writes the current task list to the data file.
+
+### Command
+
+```text
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+```
+
+### Inputs
+
+```text
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+mark 1
+delete 2
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] read book
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: June 6th)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+     Now you have 3 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Nice! I've marked this task as done:
+       [T][X] read book
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Noted. I've removed this task:
+       [D][ ] return book (by: June 6th)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+T | 1 | read book
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+## Test Case 13: Load saved tasks at startup
+
+### Aim
+
+Verify that a new chatbot session loads the tasks saved by the previous session, including each task type and completion state.
+
+### Setup
+
+This case runs after Test Case 12, which leaves `data\niulai.txt` containing the saved tasks shown below.
+
+### Command
+
+```text
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+```
+
+### Inputs
+
+```text
+list
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][X] read book
      2.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
     ____________________________________________________________
 

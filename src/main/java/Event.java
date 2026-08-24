@@ -17,13 +17,23 @@ public class Event extends Task {
      */
     public Event(String description, String from, String to) {
         super(description);
-        this.from = from;
-        this.to = to;
+        if (from == null || from.isBlank() || to == null || to.isBlank()) {
+            throw new IllegalArgumentException("Event times cannot be blank.");
+        }
+
+        this.from = from.strip();
+        this.to = to.strip();
     }
 
     @Override
     public String getTypeIcon() {
         return "E";
+    }
+
+    @Override
+    public String toStorageString() {
+        return super.toStorageString() + " | " + escapeStorageField(from)
+                + " | " + escapeStorageField(to);
     }
 
     @Override

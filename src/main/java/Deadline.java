@@ -13,12 +13,21 @@ public class Deadline extends Task {
      */
     public Deadline(String description, String by) {
         super(description);
-        this.by = by;
+        if (by == null || by.isBlank()) {
+            throw new IllegalArgumentException("Deadline time cannot be blank.");
+        }
+
+        this.by = by.strip();
     }
 
     @Override
     public String getTypeIcon() {
         return "D";
+    }
+
+    @Override
+    public String toStorageString() {
+        return super.toStorageString() + " | " + escapeStorageField(by);
     }
 
     @Override
