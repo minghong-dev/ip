@@ -22,7 +22,7 @@ public class Storage {
      * @param tasks the current task list
      * @throws IOException if the data directory or file cannot be written
      */
-    public static void save(ArrayList<Task> tasks) throws IOException {
+    public static void save(TaskList tasks) throws IOException {
         Objects.requireNonNull(tasks, "tasks");
 
         ArrayList<String> lines = new ArrayList<>();
@@ -69,8 +69,8 @@ public class Storage {
      * @return the saved tasks, or an empty list when no data file exists
      * @throws IOException if the data file cannot be read or contains an invalid task line
      */
-    public static ArrayList<Task> load() throws IOException {
-        ArrayList<Task> tasks = new ArrayList<>();
+    public static TaskList load() throws IOException {
+        TaskList tasks = new TaskList();
 
         if (!Files.exists(FILE_PATH)) {
             return tasks;

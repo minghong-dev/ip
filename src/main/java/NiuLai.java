@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
@@ -35,7 +34,7 @@ public class NiuLai {
         System.out.println("     What can I do for you?");
         System.out.println(line + "\n");
 
-        ArrayList<Task> tasks = loadTasks(line);
+        TaskList tasks = loadTasks(line);
 
         Scanner scanner = new Scanner(System.in);
 
@@ -230,7 +229,7 @@ public class NiuLai {
     }
 
     /** Prints deadlines and events that occur on a date. */
-    private static void printTasksOnDate(ArrayList<Task> tasks, LocalDate date, String line) {
+    private static void printTasksOnDate(TaskList tasks, LocalDate date, String line) {
         System.out.println("     Here are the deadlines and events on "
                 + date.format(DISPLAY_DATE_FORMATTER) + ":");
 
@@ -260,7 +259,7 @@ public class NiuLai {
      * @param task the task to add
      * @throws NiuLaiException if the updated list cannot be saved
      */
-    private static void addTaskAndSave(ArrayList<Task> tasks, Task task) throws NiuLaiException {
+    private static void addTaskAndSave(TaskList tasks, Task task) throws NiuLaiException {
         tasks.add(task);
         try {
             saveTasks(tasks);
@@ -290,7 +289,7 @@ public class NiuLai {
      * @param tasks the current task list
      * @throws NiuLaiException if the task list cannot be written to disk
      */
-    private static void saveTasks(ArrayList<Task> tasks) throws NiuLaiException {
+    private static void saveTasks(TaskList tasks) throws NiuLaiException {
         try {
             Storage.save(tasks);
         } catch (IOException | SecurityException e) {
@@ -303,14 +302,14 @@ public class NiuLai {
      *
      * @return the saved task list or an empty list when no usable data is available
      */
-    private static ArrayList<Task> loadTasks(String line) {
+    private static TaskList loadTasks(String line) {
         try {
             return Storage.load();
         } catch (IOException | SecurityException e) {
             System.out.println(line);
             System.out.println("     NOOO!!! I couldn't load your tasks from disk.");
             System.out.println(line + "\n");
-            return new ArrayList<>();
+            return new TaskList();
         }
     }
 
