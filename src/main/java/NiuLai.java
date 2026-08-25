@@ -2,8 +2,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Locale;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,51 +17,31 @@ public class NiuLai {
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^(.+?)\\s+/from\\s+(.+?)\\s+/to\\s+(.+)$");
 
-    /** Formats dates used by the find command in chatbot output. */
-    private static final DateTimeFormatter DISPLAY_DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("MMM dd uuuu", Locale.ENGLISH);
-
     public static void main(String[] args) {
-        String banner = "|\\ | | |  | |     /\\  |\n"
-                + "| \\| | \\__/ |___ /~~\\ |\n";
-        System.out.println(banner);
+        Ui ui = new Ui();
+        ui.showWelcome();
 
-        String line = "    ____________________________________________________________";
-        System.out.println(line);
-        System.out.println("     Hello! I'm NiuLai!");
-        System.out.println("     What can I do for you?");
-        System.out.println(line + "\n");
+        TaskList tasks = loadTasks(ui);
 
-        TaskList tasks = loadTasks(line);
+        while (ui.hasNextLine()) {
+            String command = ui.readCommand();
 
-        Scanner scanner = new Scanner(System.in);
-
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine().strip();
-
-            System.out.println(line);
+            ui.showSeparator();
 
             try {
                 if (Command.BYE.matchesExactly(command)) {
-                    System.out.println("     Bye. Hope not to see you again.");
-                    System.out.println(line);
+                    ui.showBye();
                     break;
                 }
 
                 if (Command.LIST.matchesExactly(command)) {
-                    System.out.println("     Here are the tasks in your list:");
-
-                    for (int i = 0; i < tasks.size(); i++) {
-                        System.out.println("     " + (i + 1) + "." + tasks.get(i));
-                    }
-
-                    System.out.println(line + "\n");
+                    ui.showList(tasks);
                     continue;
                 }
 
                 if (Command.FIND.matches(command)) {
                     LocalDate date = getDateArgument(command, Command.FIND);
-                    printTasksOnDate(tasks, date, line);
+                    ui.showTasksOnDate(tasks, date);
                     continue;
                 }
 
@@ -78,9 +56,7 @@ public class NiuLai {
                         restoreStatus(task, previousStatus);
                         throw e;
                     }
-                    System.out.println("     Nice! I've marked this task as done:");
-                    System.out.println("       " + task);
-                    System.out.println(line + "\n");
+                    ui.showTaskMarked(task);
                     continue;
                 }
 
@@ -95,9 +71,7 @@ public class NiuLai {
                         restoreStatus(task, previousStatus);
                         throw e;
                     }
-                    System.out.println("     OK, I've marked this task as not done yet:");
-                    System.out.println("       " + task);
-                    System.out.println(line + "\n");
+                    ui.showTaskUnmarked(task);
                     continue;
                 }
 
@@ -110,10 +84,7 @@ public class NiuLai {
                         tasks.add(taskIndex, deletedTask);
                         throw e;
                     }
-                    System.out.println("     Noted. I've removed this task:");
-                    System.out.println("       " + deletedTask);
-                    System.out.println("     Now you have " + tasks.size() + " tasks in the list.");
-                    System.out.println(line + "\n");
+                    ui.showTaskDeleted(deletedTask, tasks.size());
                     continue;
                 }
 
@@ -127,7 +98,7 @@ public class NiuLai {
                     }
 
                     addTaskAndSave(tasks, new Todo(description));
-                    printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     continue;
                 }
 
@@ -151,7 +122,7 @@ public class NiuLai {
                     }
 
                     addTaskAndSave(tasks, new Deadline(description, by));
-                    printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     continue;
                 }
 
@@ -176,7 +147,7 @@ public class NiuLai {
                     }
 
                     addTaskAndSave(tasks, new Event(description, from, to));
-                    printTaskAdded(tasks.get(tasks.size() - 1), tasks.size(), line);
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     continue;
                 }
 
@@ -184,8 +155,7 @@ public class NiuLai {
                         "NOOO!!! I don't recognize that command. Try 'list' to view your tasks."
                 );
             } catch (NiuLaiException e) {
-                System.out.println("     " + e.getMessage());
-                System.out.println(line + "\n");
+                ui.showError(e.getMessage());
             }
         }
     }
@@ -226,30 +196,6 @@ public class NiuLai {
                     "NOOO!!! 'find' needs a date in yyyy-mm-dd format, such as 'find 2026-08-25'."
             );
         }
-    }
-
-    /** Prints deadlines and events that occur on a date. */
-    private static void printTasksOnDate(TaskList tasks, LocalDate date, String line) {
-        System.out.println("     Here are the deadlines and events on "
-                + date.format(DISPLAY_DATE_FORMATTER) + ":");
-
-        int matches = 0;
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.get(i);
-            boolean occursOnDate = task instanceof Deadline deadline && deadline.occursOn(date)
-                    || task instanceof Event event && event.occursOn(date);
-
-            if (occursOnDate) {
-                System.out.println("     " + (i + 1) + "." + task);
-                matches++;
-            }
-        }
-
-        if (matches == 0) {
-            System.out.println("     No deadlines or events found.");
-        }
-
-        System.out.println(line + "\n");
     }
 
     /**
@@ -302,13 +248,11 @@ public class NiuLai {
      *
      * @return the saved task list or an empty list when no usable data is available
      */
-    private static TaskList loadTasks(String line) {
+    private static TaskList loadTasks(Ui ui) {
         try {
             return Storage.load();
         } catch (IOException | SecurityException e) {
-            System.out.println(line);
-            System.out.println("     NOOO!!! I couldn't load your tasks from disk.");
-            System.out.println(line + "\n");
+            ui.showLoadingError();
             return new TaskList();
         }
     }
@@ -353,17 +297,4 @@ public class NiuLai {
         return taskNumber - 1;
     }
 
-    /**
-     * Prints the confirmation shown after a task has been added.
-     *
-     * @param task the task that was added
-     * @param count the new number of tasks
-     * @param line the separator line used by the user interface
-     */
-    private static void printTaskAdded(Task task, int count, String line) {
-        System.out.println("     Got it. I've added this task:");
-        System.out.println("       " + task);
-        System.out.println("     Now you have " + count + " tasks in the list.");
-        System.out.println(line + "\n");
-    }
 }
