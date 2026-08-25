@@ -773,3 +773,60 @@ bye
      Bye. Hope not to see you again.
     ____________________________________________________________
 ```
+
+## Test Case 14: Parse and format deadline dates
+
+### Aim
+
+Verify that ISO dates and day/month/year dates with times are stored as date values, displayed in a readable format, and preserved when saved.
+
+### Command
+
+```text
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+```
+
+### Inputs
+
+```text
+deadline submit report /by 2019-10-15
+deadline return book /by 2/12/2019 1800
+list
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] submit report (by: Oct 15 2019)
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: Dec 02 2019 6:00 PM)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[D][ ] submit report (by: Oct 15 2019)
+     2.[D][ ] return book (by: Dec 02 2019 6:00 PM)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+D | 0 | submit report | 2019-10-15
+D | 0 | return book | 2019-12-02 1800
+```
