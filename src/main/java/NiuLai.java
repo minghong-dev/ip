@@ -1,5 +1,9 @@
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +19,10 @@ public class NiuLai {
     /** Matches the description, /from field, and /to field of an event command. */
     private static final Pattern EVENT_PATTERN =
             Pattern.compile("^(.+?)\\s+/from\\s+(.+?)\\s+/to\\s+(.+)$");
+
+    /** Formats dates used by the find command in chatbot output. */
+    private static final DateTimeFormatter DISPLAY_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("MMM dd uuuu", Locale.ENGLISH);
 
     public static void main(String[] args) {
         String banner = "|\\ | | |  | |     /\\  |\n"
@@ -51,6 +59,12 @@ public class NiuLai {
                     }
 
                     System.out.println(line + "\n");
+                    continue;
+                }
+
+                if (Command.FIND.matches(command)) {
+                    LocalDate date = getDateArgument(command, Command.FIND);
+                    printTasksOnDate(tasks, date, line);
                     continue;
                 }
 
@@ -186,6 +200,57 @@ public class NiuLai {
      */
     private static String getArgument(String input, Command command) {
         return input.substring(command.getKeyword().length()).strip();
+    }
+
+    /**
+     * Parses the date argument used by the find command.
+     *
+     * @param input the complete user input
+     * @param command the command whose date argument should be returned
+     * @return the parsed date
+     * @throws NiuLaiException if the date is missing or not in ISO format
+     */
+    private static LocalDate getDateArgument(String input, Command command)
+            throws NiuLaiException {
+        String argument = getArgument(input, command);
+
+        if (argument.isEmpty()) {
+            throw new NiuLaiException(
+                    "NOOO!!! 'find' needs a date in yyyy-mm-dd format, such as 'find 2026-08-25'."
+            );
+        }
+
+        try {
+            return LocalDate.parse(argument, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
+            throw new NiuLaiException(
+                    "NOOO!!! 'find' needs a date in yyyy-mm-dd format, such as 'find 2026-08-25'."
+            );
+        }
+    }
+
+    /** Prints deadlines and events that occur on a date. */
+    private static void printTasksOnDate(ArrayList<Task> tasks, LocalDate date, String line) {
+        System.out.println("     Here are the deadlines and events on "
+                + date.format(DISPLAY_DATE_FORMATTER) + ":");
+
+        int matches = 0;
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            boolean occursOnDate = task instanceof Deadline deadline && deadline.occursOn(date)
+                    || task instanceof Event event && event.occursOn(date);
+
+            if (occursOnDate) {
+                System.out.println("     " + (i + 1) + "." + task);
+                matches++;
+            }
+        }
+
+        if (matches == 0) {
+            System.out.println("     No deadlines or events found.");
+        }
+
+        System.out.println(line + "\n");
     }
 
     /**

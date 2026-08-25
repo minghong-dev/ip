@@ -773,3 +773,136 @@ bye
      Bye. Hope not to see you again.
     ____________________________________________________________
 ```
+
+## Test Case 14: Parse and format deadline dates
+
+### Aim
+
+Verify that ISO dates and day/month/year dates with times are stored as date values, displayed in a readable format, and preserved when saved.
+
+### Command
+
+```text
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+```
+
+### Inputs
+
+```text
+deadline submit report /by 2019-10-15
+deadline return book /by 2/12/2019 1800
+list
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] submit report (by: Oct 15 2019)
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: Dec 02 2019 6:00 PM)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[D][ ] submit report (by: Oct 15 2019)
+     2.[D][ ] return book (by: Dec 02 2019 6:00 PM)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+D | 0 | submit report | 2019-10-15
+D | 0 | return book | 2019-12-02 1800
+```
+
+## Test Case 15: Find deadlines and events on a date
+
+### Aim
+
+Verify that the `find` command lists deadlines and date-based events occurring on a requested date, including events spanning multiple dates, and reports when there are no matches.
+
+### Command
+
+```text
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/Storage.java && java -cp out NiuLai
+```
+
+### Inputs
+
+```text
+deadline submit report /by 2019-10-15
+deadline return book /by 2019-10-16 1800
+event project kickoff /from 2019-10-15 0900 /to 2019-10-15 1000
+event conference /from 2019-10-14 /to 2019-10-16
+find 2019-10-15
+find 2020-01-01
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] submit report (by: Oct 15 2019)
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: Oct 16 2019 6:00 PM)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [E][ ] project kickoff (from: 2019-10-15 0900 to: 2019-10-15 1000)
+     Now you have 3 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [E][ ] conference (from: 2019-10-14 to: 2019-10-16)
+     Now you have 4 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the deadlines and events on Oct 15 2019:
+     1.[D][ ] submit report (by: Oct 15 2019)
+     3.[E][ ] project kickoff (from: 2019-10-15 0900 to: 2019-10-15 1000)
+     4.[E][ ] conference (from: 2019-10-14 to: 2019-10-16)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the deadlines and events on Jan 01 2020:
+     No deadlines or events found.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+```

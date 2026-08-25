@@ -8,6 +8,9 @@ public enum Command {
     /** Lists all tasks. */
     LIST("list"),
 
+    /** Lists deadlines and events occurring on a date. */
+    FIND("find"),
+
     /** Marks a task as completed. */
     MARK("mark"),
 
