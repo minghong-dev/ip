@@ -146,24 +146,24 @@ public class Storage {
         }
 
         switch (type) {
-        case "T":
-            requireFieldCount(fields, 3, lineNumber);
-            task = new Todo(description);
-            break;
-        case "D":
-            requireFieldCount(fields, 4, lineNumber);
-            task = new Deadline(description, requireValue(fields.get(3), lineNumber));
-            break;
-        case "E":
-            requireFieldCount(fields, 5, lineNumber);
-            task = new Event(
-                    description,
-                    requireValue(fields.get(3), lineNumber),
-                    requireValue(fields.get(4), lineNumber)
-            );
-            break;
-        default:
-            throw invalidLine(lineNumber);
+            case "T":
+                requireFieldCount(fields, 3, lineNumber);
+                task = new Todo(description);
+                break;
+            case "D":
+                requireFieldCount(fields, 4, lineNumber);
+                task = new Deadline(description, requireValue(fields.get(3), lineNumber));
+                break;
+            case "E":
+                requireFieldCount(fields, 5, lineNumber);
+                task = new Event(
+                        description,
+                        requireValue(fields.get(3), lineNumber),
+                        requireValue(fields.get(4), lineNumber)
+                );
+                break;
+            default:
+                throw invalidLine(lineNumber);
         }
 
         if (completionState == 1) {
