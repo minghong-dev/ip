@@ -19,7 +19,7 @@ Verify that the application starts successfully and exits with the expected fare
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -53,7 +53,7 @@ Verify that missing, non-numeric, zero, and out-of-range task numbers are reject
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -137,7 +137,7 @@ Verify that a blank command is rejected without adding a task and that a valid c
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -189,7 +189,7 @@ Verify that todo, deadline, and event commands preserve their descriptions and d
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -252,7 +252,7 @@ Verify that an empty todo description and an unknown command produce helpful err
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -296,7 +296,7 @@ Verify that malformed todo, deadline, and event commands are rejected, while val
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -374,7 +374,7 @@ Verify that a task can be deleted by its displayed number, that the remaining ta
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -458,7 +458,7 @@ Verify that the chatbot starts when both the data folder and file are absent, an
 ### Command
 
 ```text
-(if exist data rmdir /s /q data) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+(if exist data rmdir /s /q data) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -500,7 +500,7 @@ Verify that flexible whitespace is accepted and that pipes and backslashes in ta
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -570,7 +570,7 @@ This case runs after Test Case 9, which leaves the escaped task data in `data\ni
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -612,7 +612,7 @@ Verify that malformed saved data produces a helpful error without crashing the c
 ### Command
 
 ```text
-(if not exist data mkdir data) & (echo malformed>data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+(if not exist data mkdir data) & (echo malformed>data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -668,7 +668,7 @@ Verify that adding, marking, and deleting tasks automatically writes the current
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -742,7 +742,7 @@ This case runs after Test Case 12, which leaves `data\niulai.txt` containing the
 ### Command
 
 ```text
-javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
+javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai
 ```
 
 ### Inputs
@@ -783,7 +783,7 @@ Verify that ISO dates and day/month/year dates with times are stored as date val
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/NiuLai.java src/main/java/NiuLaiException.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Command.java src/main/java/ExitCommand.java src/main/java/ListCommand.java src/main/java/DeleteCommand.java src/main/java/MarkCommand.java src/main/java/UnmarkCommand.java src/main/java/Todo.java src/main/java/Deadline.java src/main/java/Event.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Storage.java && java -cp out NiuLai && type data\niulai.txt
 ```
 
 ### Inputs

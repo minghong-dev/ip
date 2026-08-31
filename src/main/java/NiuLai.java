@@ -71,16 +71,8 @@ public class NiuLai {
 
                 if (Command.Type.UNMARK.matches(command)) {
                     int taskIndex = parser.parseTaskIndex(command, Command.Type.UNMARK, tasks.size());
-                    Task task = tasks.get(taskIndex);
-                    TaskStatus previousStatus = task.getStatus();
-                    task.markAsNotDone();
-                    try {
-                        saveTasks();
-                    } catch (NiuLaiException e) {
-                        restoreStatus(task, previousStatus);
-                        throw e;
-                    }
-                    ui.showTaskUnmarked(task);
+                    Command unmarkCommand = new UnmarkCommand(taskIndex);
+                    unmarkCommand.execute(tasks, ui, storage);
                     continue;
                 }
 
