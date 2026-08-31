@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -71,7 +72,7 @@ public class Storage {
                         StandardCopyOption.ATOMIC_MOVE,
                         StandardCopyOption.REPLACE_EXISTING
                 );
-            } catch (AtomicMoveNotSupportedException e) {
+            } catch (AtomicMoveNotSupportedException | FileAlreadyExistsException e) {
                 Files.move(
                         temporaryFile,
                         filePath,

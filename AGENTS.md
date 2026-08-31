@@ -32,6 +32,10 @@ Ensure that Java 25 is used when running the application or build tasks. On macO
 
 After every code update, review `test/ui-test-plan.md` and update its test cases when the change affects the UI commands, inputs, or expected console output. Then invoke the project-specific `test-ui` skill (`$test-ui`) even when the test plan did not need changes. Include the resulting console input/output transcript in the handoff. If a test fails, stop the session immediately and report the actual and expected outputs before making further code changes.
 
+## JUnit test coverage target:
+
+Maintain JUnit tests for approximately the top 50% of methods by testing the highest-value logic first, especially complex, core, or critical business behavior. Update the relevant JUnit tests after every code change to keep them compliant with this coverage target; add or revise tests whenever the changed behavior affects a covered method or introduces new high-value logic.
+
 ## Git
 
 Use lightweight tags unless the user requests an annotated tag.
