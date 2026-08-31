@@ -1,3 +1,9 @@
+package niulai.command;
+
+import niulai.model.TaskList;
+import niulai.service.Storage;
+import niulai.service.Ui;
+
 /**
  * Exits the NiuLai command-line application.
  */

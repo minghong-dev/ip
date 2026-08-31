@@ -1,24 +1,33 @@
+package niulai.command;
+
 import java.io.IOException;
 
+import niulai.NiuLaiException;
+import niulai.model.Task;
+import niulai.model.TaskList;
+import niulai.model.TaskStatus;
+import niulai.service.Storage;
+import niulai.service.Ui;
+
 /**
- * Marks a task as pending and persists the updated task list.
+ * Marks a task as completed and persists the updated task list.
  */
-public class UnmarkCommand extends Command {
-    /** The zero-based index of the task to mark as pending. */
+public class MarkCommand extends Command {
+    /** The zero-based index of the task to mark. */
     private final int taskIndex;
 
     /**
-     * Creates an unmark command for a task-list index.
+     * Creates a mark command for a task-list index.
      *
-     * @param taskIndex the zero-based index of the task to mark as pending
+     * @param taskIndex the zero-based index of the task to mark
      */
-    public UnmarkCommand(int taskIndex) {
-        super(Type.UNMARK);
+    public MarkCommand(int taskIndex) {
+        super(Type.MARK);
         this.taskIndex = taskIndex;
     }
 
     /**
-     * Marks the task as pending, saves the updated list, and restores its status if saving fails.
+     * Marks the task, saves the updated list, and restores its status if saving fails.
      *
      * @param tasks the current task list
      * @param ui the user-interface component
@@ -29,14 +38,14 @@ public class UnmarkCommand extends Command {
     public void execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
         Task task = tasks.get(taskIndex);
         TaskStatus previousStatus = task.getStatus();
-        task.markAsNotDone();
+        task.markAsDone();
         try {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
             restoreStatus(task, previousStatus);
             throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
         }
-        ui.showTaskUnmarked(task);
+        ui.showTaskMarked(task);
     }
 
     /** Restores the task status that was present before execution. */

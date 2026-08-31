@@ -1,4 +1,12 @@
+package niulai;
+
 import java.io.IOException;
+
+import niulai.command.Command;
+import niulai.model.TaskList;
+import niulai.service.Parser;
+import niulai.service.Storage;
+import niulai.service.Ui;
 /**
  * Runs the NiuLai command-line chatbot.
  */

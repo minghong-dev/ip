@@ -1,3 +1,5 @@
+package niulai.model;
+
 /**
  * Represents the completion state of a task.
  */
