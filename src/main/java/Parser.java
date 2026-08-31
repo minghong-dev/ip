@@ -28,7 +28,7 @@ public class Parser {
      * @return the parsed date
      * @throws NiuLaiException if the date is missing or invalid
      */
-    public LocalDate parseDateArgument(String input, Command command)
+    public LocalDate parseDateArgument(String input, Command.Type command)
             throws NiuLaiException {
         String argument = getArgument(input, command);
 
@@ -52,7 +52,7 @@ public class Parser {
      * @return the zero-based task index
      * @throws NiuLaiException if the task number is missing, invalid, or out of range
      */
-    public int parseTaskIndex(String input, Command command, int taskCount)
+    public int parseTaskIndex(String input, Command.Type command, int taskCount)
             throws NiuLaiException {
         String argument = getArgument(input, command);
 
@@ -91,15 +91,15 @@ public class Parser {
      * @throws NiuLaiException if the command's fields are missing or malformed
      */
     public Task parseTaskCreation(String input) throws NiuLaiException {
-        if (Command.TODO.matches(input)) {
+        if (Command.Type.TODO.matches(input)) {
             return parseTodo(input);
         }
 
-        if (Command.DEADLINE.matches(input)) {
+        if (Command.Type.DEADLINE.matches(input)) {
             return parseDeadline(input);
         }
 
-        if (Command.EVENT.matches(input)) {
+        if (Command.Type.EVENT.matches(input)) {
             return parseEvent(input);
         }
 
@@ -110,7 +110,7 @@ public class Parser {
 
     /** Parses a todo creation command. */
     private Task parseTodo(String input) throws NiuLaiException {
-        String description = getArgument(input, Command.TODO);
+        String description = getArgument(input, Command.Type.TODO);
         if (description.isEmpty()) {
             throw new NiuLaiException(
                     "NOOO!!! A todo needs a description. Try: todo <description>."
@@ -121,7 +121,7 @@ public class Parser {
 
     /** Parses a deadline creation command. */
     private Task parseDeadline(String input) throws NiuLaiException {
-        String details = getArgument(input, Command.DEADLINE);
+        String details = getArgument(input, Command.Type.DEADLINE);
         Matcher matcher = DEADLINE_PATTERN.matcher(details);
 
         if (!matcher.matches()) {
@@ -143,7 +143,7 @@ public class Parser {
 
     /** Parses an event creation command. */
     private Task parseEvent(String input) throws NiuLaiException {
-        String details = getArgument(input, Command.EVENT);
+        String details = getArgument(input, Command.Type.EVENT);
         Matcher matcher = EVENT_PATTERN.matcher(details);
 
         if (!matcher.matches()) {
@@ -165,7 +165,7 @@ public class Parser {
     }
 
     /** Returns the trimmed text after a command name. */
-    private String getArgument(String input, Command command) {
+    private String getArgument(String input, Command.Type command) {
         return input.substring(command.getKeyword().length()).strip();
     }
 

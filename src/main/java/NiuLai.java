@@ -44,24 +44,25 @@ public class NiuLai {
             ui.showSeparator();
 
             try {
-                if (Command.BYE.matchesExactly(command)) {
-                    ui.showBye();
+                if (Command.Type.BYE.matchesExactly(command)) {
+                    Command exitCommand = new ExitCommand();
+                    exitCommand.execute(tasks, ui, storage);
                     break;
                 }
 
-                if (Command.LIST.matchesExactly(command)) {
+                if (Command.Type.LIST.matchesExactly(command)) {
                     ui.showList(tasks);
                     continue;
                 }
 
-                if (Command.FIND.matches(command)) {
-                    LocalDate date = parser.parseDateArgument(command, Command.FIND);
+                if (Command.Type.FIND.matches(command)) {
+                    LocalDate date = parser.parseDateArgument(command, Command.Type.FIND);
                     ui.showTasksOnDate(tasks, date);
                     continue;
                 }
 
-                if (Command.MARK.matches(command)) {
-                    int taskIndex = parser.parseTaskIndex(command, Command.MARK, tasks.size());
+                if (Command.Type.MARK.matches(command)) {
+                    int taskIndex = parser.parseTaskIndex(command, Command.Type.MARK, tasks.size());
                     Task task = tasks.get(taskIndex);
                     TaskStatus previousStatus = task.getStatus();
                     task.markAsDone();
@@ -75,8 +76,8 @@ public class NiuLai {
                     continue;
                 }
 
-                if (Command.UNMARK.matches(command)) {
-                    int taskIndex = parser.parseTaskIndex(command, Command.UNMARK, tasks.size());
+                if (Command.Type.UNMARK.matches(command)) {
+                    int taskIndex = parser.parseTaskIndex(command, Command.Type.UNMARK, tasks.size());
                     Task task = tasks.get(taskIndex);
                     TaskStatus previousStatus = task.getStatus();
                     task.markAsNotDone();
@@ -90,8 +91,8 @@ public class NiuLai {
                     continue;
                 }
 
-                if (Command.DELETE.matches(command)) {
-                    int taskIndex = parser.parseTaskIndex(command, Command.DELETE, tasks.size());
+                if (Command.Type.DELETE.matches(command)) {
+                    int taskIndex = parser.parseTaskIndex(command, Command.Type.DELETE, tasks.size());
                     Task deletedTask = tasks.remove(taskIndex);
                     try {
                         saveTasks();
@@ -103,9 +104,9 @@ public class NiuLai {
                     continue;
                 }
 
-                if (Command.TODO.matches(command)
-                        || Command.DEADLINE.matches(command)
-                        || Command.EVENT.matches(command)) {
+                if (Command.Type.TODO.matches(command)
+                        || Command.Type.DEADLINE.matches(command)
+                        || Command.Type.EVENT.matches(command)) {
                     addTaskAndSave(parser.parseTaskCreation(command));
                     ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     continue;
