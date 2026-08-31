@@ -64,16 +64,8 @@ public class NiuLai {
 
                 if (Command.Type.MARK.matches(command)) {
                     int taskIndex = parser.parseTaskIndex(command, Command.Type.MARK, tasks.size());
-                    Task task = tasks.get(taskIndex);
-                    TaskStatus previousStatus = task.getStatus();
-                    task.markAsDone();
-                    try {
-                        saveTasks();
-                    } catch (NiuLaiException e) {
-                        restoreStatus(task, previousStatus);
-                        throw e;
-                    }
-                    ui.showTaskMarked(task);
+                    Command markCommand = new MarkCommand(taskIndex);
+                    markCommand.execute(tasks, ui, storage);
                     continue;
                 }
 
