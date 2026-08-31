@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.time.LocalDate;
 /**
  * Runs the NiuLai command-line chatbot.
  */
@@ -57,8 +56,9 @@ public class NiuLai {
                 }
 
                 if (Command.Type.FIND.matches(command)) {
-                    LocalDate date = parser.parseDateArgument(command, Command.Type.FIND);
-                    ui.showTasksOnDate(tasks, date);
+                    FindCommand findCommand = new FindCommand(
+                            parser.parseDateArgument(command, Command.Type.FIND));
+                    findCommand.execute(tasks, ui, storage);
                     continue;
                 }
 
