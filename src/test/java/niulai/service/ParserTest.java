@@ -33,6 +33,7 @@ class ParserTest {
         assertInstanceOf(ExitCommand.class, parser.parseCommand("bye", 0));
         assertInstanceOf(ListCommand.class, parser.parseCommand("list", 0));
         assertInstanceOf(FindCommand.class, parser.parseCommand("find 2026-08-31", 0));
+        assertInstanceOf(FindCommand.class, parser.parseCommand("find book", 0));
         assertInstanceOf(MarkCommand.class, parser.parseCommand("mark 1", 1));
         assertInstanceOf(UnmarkCommand.class, parser.parseCommand("unmark 1", 1));
         assertInstanceOf(DeleteCommand.class, parser.parseCommand("delete 1", 1));
@@ -72,6 +73,12 @@ class ParserTest {
         NiuLaiException malformed = assertThrows(NiuLaiException.class,
                 () -> parser.parseDateArgument("find 2026-02-30", Command.Type.FIND));
         assertEquals(expectedMessage, malformed.getMessage());
+    }
+
+    /** Verifies that a non-date find argument is accepted as a description keyword. */
+    @Test
+    void parseCommand_keywordFind_returnsFindCommand() throws NiuLaiException {
+        assertInstanceOf(FindCommand.class, parser.parseCommand("find return book", 0));
     }
 
     /** Verifies that each supported task syntax creates the correct task details. */

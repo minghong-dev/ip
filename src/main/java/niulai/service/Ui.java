@@ -100,6 +100,27 @@ public class Ui {
         showSeparatorAndBlankLine();
     }
 
+    /** Shows tasks whose descriptions contain a keyword, ignoring letter case. */
+    public void showTasksContaining(TaskList tasks, String keyword) {
+        System.out.println("     Here are the matching tasks in your list:");
+
+        var matchingTasks = tasks.findByDescription(keyword);
+        int matches = 0;
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            if (matchingTasks.contains(task)) {
+                System.out.println("     " + (i + 1) + "." + task);
+                matches++;
+            }
+        }
+
+        if (matches == 0) {
+            System.out.println("     No matching tasks found.");
+        }
+
+        showSeparatorAndBlankLine();
+    }
+
     /** Shows the confirmation for marking a task as done. */
     public void showTaskMarked(Task task) {
         System.out.println("     Nice! I've marked this task as done:");
