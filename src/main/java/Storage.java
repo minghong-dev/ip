@@ -13,8 +13,17 @@ import java.util.Objects;
  * Saves and loads the task list from the application's data file.
  */
 public class Storage {
-    /** The file used to store tasks relative to the project root. */
-    private static final Path FILE_PATH = Path.of("data", "niulai.txt");
+    /** The file used to store tasks. */
+    private final Path filePath;
+
+    /**
+     * Creates a storage component backed by the specified file.
+     *
+     * @param filePath the path of the task data file
+     */
+    public Storage(String filePath) {
+        this.filePath = Path.of(Objects.requireNonNull(filePath, "filePath"));
+    }
 
     /**
      * Writes the complete task list to disk, replacing the previous contents.
@@ -22,7 +31,7 @@ public class Storage {
      * @param tasks the current task list
      * @throws IOException if the data directory or file cannot be written
      */
-    public static void save(TaskList tasks) throws IOException {
+    public void save(TaskList tasks) throws IOException {
         Objects.requireNonNull(tasks, "tasks");
 
         ArrayList<String> lines = new ArrayList<>();
@@ -31,7 +40,10 @@ public class Storage {
             lines.add(task.toStorageString());
         }
 
-        Path dataDirectory = FILE_PATH.getParent();
+        Path dataDirectory = filePath.getParent();
+        if (dataDirectory == null) {
+            dataDirectory = Path.of(".");
+        }
         Files.createDirectories(dataDirectory);
         Path temporaryFile = Files.createTempFile(dataDirectory, "niulai-", ".tmp");
 
@@ -47,14 +59,14 @@ public class Storage {
             try {
                 Files.move(
                         temporaryFile,
-                        FILE_PATH,
+                        filePath,
                         StandardCopyOption.ATOMIC_MOVE,
                         StandardCopyOption.REPLACE_EXISTING
                 );
             } catch (AtomicMoveNotSupportedException e) {
                 Files.move(
                         temporaryFile,
-                        FILE_PATH,
+                        filePath,
                         StandardCopyOption.REPLACE_EXISTING
                 );
             }
@@ -69,14 +81,14 @@ public class Storage {
      * @return the saved tasks, or an empty list when no data file exists
      * @throws IOException if the data file cannot be read or contains an invalid task line
      */
-    public static TaskList load() throws IOException {
+    public TaskList load() throws IOException {
         TaskList tasks = new TaskList();
 
-        if (!Files.exists(FILE_PATH)) {
+        if (!Files.exists(filePath)) {
             return tasks;
         }
 
-        try (BufferedReader reader = Files.newBufferedReader(FILE_PATH, StandardCharsets.UTF_8)) {
+        try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             String line;
             int lineNumber = 0;
 

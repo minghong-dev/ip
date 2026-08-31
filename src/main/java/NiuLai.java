@@ -4,12 +4,39 @@ import java.time.LocalDate;
  * Runs the NiuLai command-line chatbot.
  */
 public class NiuLai {
-    public static void main(String[] args) {
-        Ui ui = new Ui();
-        Parser parser = new Parser();
-        ui.showWelcome();
+    /** The component that persists tasks between chatbot sessions. */
+    private final Storage storage;
 
-        TaskList tasks = loadTasks(ui);
+    /** The tasks currently managed by the chatbot. */
+    private TaskList tasks;
+
+    /** The component that handles console interaction. */
+    private final Ui ui;
+
+    /** The component that interprets user commands. */
+    private final Parser parser;
+
+    /**
+     * Creates a chatbot backed by the specified task data file.
+     *
+     * @param filePath the path of the task data file
+     */
+    public NiuLai(String filePath) {
+        ui = new Ui();
+        parser = new Parser();
+        storage = new Storage(filePath);
+        tasks = new TaskList();
+    }
+
+    /** Creates a chatbot backed by the default task data file. */
+    public NiuLai() {
+        this("data/niulai.txt");
+    }
+
+    /** Runs the chatbot until the user enters {@code bye} or input ends. */
+    public void run() {
+        ui.showWelcome();
+        tasks = loadTasks();
 
         while (ui.hasNextLine()) {
             String command = ui.readCommand();
@@ -39,7 +66,7 @@ public class NiuLai {
                     TaskStatus previousStatus = task.getStatus();
                     task.markAsDone();
                     try {
-                        saveTasks(tasks);
+                        saveTasks();
                     } catch (NiuLaiException e) {
                         restoreStatus(task, previousStatus);
                         throw e;
@@ -54,7 +81,7 @@ public class NiuLai {
                     TaskStatus previousStatus = task.getStatus();
                     task.markAsNotDone();
                     try {
-                        saveTasks(tasks);
+                        saveTasks();
                     } catch (NiuLaiException e) {
                         restoreStatus(task, previousStatus);
                         throw e;
@@ -67,7 +94,7 @@ public class NiuLai {
                     int taskIndex = parser.parseTaskIndex(command, Command.DELETE, tasks.size());
                     Task deletedTask = tasks.remove(taskIndex);
                     try {
-                        saveTasks(tasks);
+                        saveTasks();
                     } catch (NiuLaiException e) {
                         tasks.add(taskIndex, deletedTask);
                         throw e;
@@ -79,7 +106,7 @@ public class NiuLai {
                 if (Command.TODO.matches(command)
                         || Command.DEADLINE.matches(command)
                         || Command.EVENT.matches(command)) {
-                    addTaskAndSave(tasks, parser.parseTaskCreation(command));
+                    addTaskAndSave(parser.parseTaskCreation(command));
                     ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     continue;
                 }
@@ -96,14 +123,13 @@ public class NiuLai {
     /**
      * Adds a task and rolls the addition back if saving fails.
      *
-     * @param tasks the current task list
      * @param task the task to add
      * @throws NiuLaiException if the updated list cannot be saved
      */
-    private static void addTaskAndSave(TaskList tasks, Task task) throws NiuLaiException {
+    private void addTaskAndSave(Task task) throws NiuLaiException {
         tasks.add(task);
         try {
-            saveTasks(tasks);
+            saveTasks();
         } catch (NiuLaiException e) {
             tasks.remove(tasks.size() - 1);
             throw e;
@@ -127,12 +153,11 @@ public class NiuLai {
     /**
      * Saves the current task list and turns file-system failures into a chatbot error.
      *
-     * @param tasks the current task list
      * @throws NiuLaiException if the task list cannot be written to disk
      */
-    private static void saveTasks(TaskList tasks) throws NiuLaiException {
+    private void saveTasks() throws NiuLaiException {
         try {
-            Storage.save(tasks);
+            storage.save(tasks);
         } catch (IOException | SecurityException e) {
             throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
         }
@@ -143,13 +168,18 @@ public class NiuLai {
      *
      * @return the saved task list or an empty list when no usable data is available
      */
-    private static TaskList loadTasks(Ui ui) {
+    private TaskList loadTasks() {
         try {
-            return Storage.load();
+            return storage.load();
         } catch (IOException | SecurityException e) {
             ui.showLoadingError();
             return new TaskList();
         }
+    }
+
+    /** Starts the chatbot with its default data file. */
+    public static void main(String[] args) {
+        new NiuLai().run();
     }
 
 }
