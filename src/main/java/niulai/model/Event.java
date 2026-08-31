@@ -30,6 +30,7 @@ public class Event extends Task {
         this.to = to.strip();
     }
 
+    /** @return {@code E}, the type marker for an event */
     @Override
     public String getTypeIcon() {
         return "E";
@@ -64,12 +65,22 @@ public class Event extends Task {
         return Deadline.parseDateValue(value);
     }
 
+    /**
+     * Returns the escaped storage representation of this event.
+     *
+     * @return the base task fields followed by the event start and end values
+     */
     @Override
     public String toStorageString() {
         return super.toStorageString() + " | " + escapeStorageField(from)
                 + " | " + escapeStorageField(to);
     }
 
+    /**
+     * Returns the display representation of this event.
+     *
+     * @return the base task representation followed by the event interval
+     */
     @Override
     public String toString() {
         return super.toString() + " (from: " + from + " to: " + to + ")";

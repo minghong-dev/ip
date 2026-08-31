@@ -90,16 +90,27 @@ public class Deadline extends Task {
         this.byText = null;
     }
 
+    /** @return {@code D}, the type marker for a deadline */
     @Override
     public String getTypeIcon() {
         return "D";
     }
 
+    /**
+     * Returns the escaped storage representation of this deadline.
+     *
+     * @return the base task fields followed by the deadline value
+     */
     @Override
     public String toStorageString() {
         return super.toStorageString() + " | " + escapeStorageField(getStorageValue());
     }
 
+    /**
+     * Returns the display representation of this deadline.
+     *
+     * @return the base task representation followed by the deadline value
+     */
     @Override
     public String toString() {
         return super.toString() + " (by: " + getDisplayValue() + ")";
