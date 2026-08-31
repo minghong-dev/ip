@@ -24,6 +24,15 @@ Unless the user says otherwise, assume that you are assisting a student working 
 
 # Project-specific requirements
 
+## Java coding standard:
+
+All Java source and test code in this project MUST follow the project-specific
+`seedu-java-coding-standard` skill, based on the SE-EDU basic and intermediate
+Java coding standard: <https://se-education.org/guides/conventions/java/intermediate.html>.
+Use the Google Java Style Guide for topics not covered there. Apply the standard
+to every new or modified Java file and correct existing violations when working
+in the affected code.
+
 ## Java version:
 
 Ensure that Java 25 is used when running the application or build tasks. On macOS, use `sdk use java 25.0.3.fx-zulu` to switch to Java 25 if needed.
@@ -38,6 +47,12 @@ Maintain JUnit tests for approximately the top 50% of methods by testing the hig
 
 ## Git
 
+All future commits in this project MUST follow the project-specific
+`seedu-git-standard` skill, based on the SE-EDU Git conventions:
+<https://se-education.org/guides/conventions/git.html>. This includes commit
+subject and body format, rationale-focused messages, and meaningful kebab-case
+branch names. Apply these rules whenever proposing, creating, or amending a
+commit. Do not commit or push unless explicitly asked.
+
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
-Do not commit or push unless explicitly asked.

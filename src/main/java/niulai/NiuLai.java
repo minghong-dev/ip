@@ -7,6 +7,7 @@ import niulai.model.TaskList;
 import niulai.service.Parser;
 import niulai.service.Storage;
 import niulai.service.Ui;
+
 /**
  * Runs the NiuLai command-line chatbot.
  */
@@ -80,5 +81,4 @@ public class NiuLai {
     public static void main(String[] args) {
         new NiuLai().run();
     }
-
 }
