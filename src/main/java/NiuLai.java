@@ -43,58 +43,11 @@ public class NiuLai {
             ui.showSeparator();
 
             try {
-                if (Command.Type.BYE.matchesExactly(command)) {
-                    Command exitCommand = new ExitCommand();
-                    exitCommand.execute(tasks, ui, storage);
+                Command parsedCommand = parser.parseCommand(command, tasks.size());
+                parsedCommand.execute(tasks, ui, storage);
+                if (parsedCommand.isExit()) {
                     break;
                 }
-
-                if (Command.Type.LIST.matchesExactly(command)) {
-                    Command listCommand = new ListCommand();
-                    listCommand.execute(tasks, ui, storage);
-                    continue;
-                }
-
-                if (Command.Type.FIND.matches(command)) {
-                    FindCommand findCommand = new FindCommand(
-                            parser.parseDateArgument(command, Command.Type.FIND));
-                    findCommand.execute(tasks, ui, storage);
-                    continue;
-                }
-
-                if (Command.Type.MARK.matches(command)) {
-                    int taskIndex = parser.parseTaskIndex(command, Command.Type.MARK, tasks.size());
-                    Command markCommand = new MarkCommand(taskIndex);
-                    markCommand.execute(tasks, ui, storage);
-                    continue;
-                }
-
-                if (Command.Type.UNMARK.matches(command)) {
-                    int taskIndex = parser.parseTaskIndex(command, Command.Type.UNMARK, tasks.size());
-                    Command unmarkCommand = new UnmarkCommand(taskIndex);
-                    unmarkCommand.execute(tasks, ui, storage);
-                    continue;
-                }
-
-                if (Command.Type.DELETE.matches(command)) {
-                    int taskIndex = parser.parseTaskIndex(command, Command.Type.DELETE, tasks.size());
-                    Command deleteCommand = new DeleteCommand(taskIndex);
-                    deleteCommand.execute(tasks, ui, storage);
-                    continue;
-                }
-
-                if (Command.Type.TODO.matches(command)
-                        || Command.Type.DEADLINE.matches(command)
-                        || Command.Type.EVENT.matches(command)) {
-                    Task task = parser.parseTaskCreation(command);
-                    Command addCommand = new AddCommand(task);
-                    addCommand.execute(tasks, ui, storage);
-                    continue;
-                }
-
-                throw new NiuLaiException(
-                        "NOOO!!! I don't recognize that command. Try 'list' to view your tasks."
-                );
             } catch (NiuLaiException e) {
                 ui.showError(e.getMessage());
             }

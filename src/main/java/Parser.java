@@ -21,6 +21,50 @@ public class Parser {
             DateTimeFormatter.ISO_LOCAL_DATE;
 
     /**
+     * Parses complete user input into an executable command.
+     *
+     * @param input the complete user input
+     * @param taskCount the number of tasks currently available
+     * @return the executable command represented by the input
+     * @throws NiuLaiException if the input is unknown or malformed
+     */
+    public Command parseCommand(String input, int taskCount) throws NiuLaiException {
+        if (Command.Type.BYE.matchesExactly(input)) {
+            return new ExitCommand();
+        }
+
+        if (Command.Type.LIST.matchesExactly(input)) {
+            return new ListCommand();
+        }
+
+        if (Command.Type.FIND.matches(input)) {
+            return new FindCommand(parseDateArgument(input, Command.Type.FIND));
+        }
+
+        if (Command.Type.MARK.matches(input)) {
+            return new MarkCommand(parseTaskIndex(input, Command.Type.MARK, taskCount));
+        }
+
+        if (Command.Type.UNMARK.matches(input)) {
+            return new UnmarkCommand(parseTaskIndex(input, Command.Type.UNMARK, taskCount));
+        }
+
+        if (Command.Type.DELETE.matches(input)) {
+            return new DeleteCommand(parseTaskIndex(input, Command.Type.DELETE, taskCount));
+        }
+
+        if (Command.Type.TODO.matches(input)
+                || Command.Type.DEADLINE.matches(input)
+                || Command.Type.EVENT.matches(input)) {
+            return new AddCommand(parseTaskCreation(input));
+        }
+
+        throw new NiuLaiException(
+                "NOOO!!! I don't recognize that command. Try 'list' to view your tasks."
+        );
+    }
+
+    /**
      * Parses the date argument of a command.
      *
      * @param input the complete user input
