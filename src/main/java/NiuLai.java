@@ -94,14 +94,8 @@ public class NiuLai {
 
                 if (Command.Type.DELETE.matches(command)) {
                     int taskIndex = parser.parseTaskIndex(command, Command.Type.DELETE, tasks.size());
-                    Task deletedTask = tasks.remove(taskIndex);
-                    try {
-                        saveTasks();
-                    } catch (NiuLaiException e) {
-                        tasks.add(taskIndex, deletedTask);
-                        throw e;
-                    }
-                    ui.showTaskDeleted(deletedTask, tasks.size());
+                    Command deleteCommand = new DeleteCommand(taskIndex);
+                    deleteCommand.execute(tasks, ui, storage);
                     continue;
                 }
 
