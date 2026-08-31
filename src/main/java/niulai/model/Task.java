@@ -1,3 +1,5 @@
+package niulai.model;
+
 /**
  * Represents a task in the NiuLai task list.
  */

@@ -1,7 +1,14 @@
+package niulai.service;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Scanner;
+
+import niulai.model.Deadline;
+import niulai.model.Event;
+import niulai.model.Task;
+import niulai.model.TaskList;
 
 /**
  * Handles interaction between NiuLai and the user.
