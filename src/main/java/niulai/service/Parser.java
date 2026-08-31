@@ -36,6 +36,10 @@ public class Parser {
     private static final DateTimeFormatter INPUT_DATE_FORMATTER =
             DateTimeFormatter.ISO_LOCAL_DATE;
 
+    /** Recognizes the date-shaped arguments reserved for the date-search variant of find. */
+    private static final Pattern DATE_ARGUMENT_PATTERN =
+            Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
+
     /**
      * Parses complete user input into an executable command.
      *
@@ -54,7 +58,14 @@ public class Parser {
         }
 
         if (Command.Type.FIND.matches(input)) {
-            return new FindCommand(parseDateArgument(input, Command.Type.FIND));
+            String argument = getArgument(input, Command.Type.FIND);
+            if (argument.isEmpty()) {
+                throw invalidFindArgumentError();
+            }
+            if (DATE_ARGUMENT_PATTERN.matcher(argument).matches()) {
+                return new FindCommand(parseDateArgument(input, Command.Type.FIND));
+            }
+            return new FindCommand(argument);
         }
 
         if (Command.Type.MARK.matches(input)) {
@@ -233,6 +244,13 @@ public class Parser {
     private NiuLaiException invalidDateError() {
         return new NiuLaiException(
                 "NOOO!!! 'find' needs a date in yyyy-mm-dd format, such as 'find 2026-08-25'."
+        );
+    }
+
+    /** Creates the standard error for a find command without a search term. */
+    private NiuLaiException invalidFindArgumentError() {
+        return new NiuLaiException(
+                "NOOO!!! 'find' needs a keyword, such as 'find book', or a date in yyyy-mm-dd format."
         );
     }
 }

@@ -3,6 +3,7 @@ package niulai.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -71,6 +72,21 @@ public class TaskList implements Iterable<Task> {
     /** @return the number of tasks in the list */
     public int size() {
         return tasks.size();
+    }
+
+    /**
+     * Finds tasks whose descriptions contain the supplied keyword.
+     *
+     * @param keyword the case-insensitive text to search for
+     * @return matching tasks in their original display order
+     */
+    public List<Task> findByDescription(String keyword) {
+        String normalizedKeyword = Objects.requireNonNull(keyword, "keyword")
+                .toLowerCase(Locale.ROOT);
+        return tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase(Locale.ROOT)
+                        .contains(normalizedKeyword))
+                .toList();
     }
 
     /** @return an iterator over tasks in display order */

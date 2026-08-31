@@ -8,11 +8,14 @@ import niulai.service.Storage;
 import niulai.service.Ui;
 
 /**
- * Displays deadlines and events occurring on a specified date.
+ * Displays tasks matching either a date or a keyword in their descriptions.
  */
 public class FindCommand extends Command {
-    /** The date whose matching tasks should be displayed. */
+    /** The date whose matching tasks should be displayed, when this is a date search. */
     private final LocalDate date;
+
+    /** The keyword whose matching tasks should be displayed, when this is a keyword search. */
+    private final String keyword;
 
     /**
      * Creates a find command for a date.
@@ -22,6 +25,18 @@ public class FindCommand extends Command {
     public FindCommand(LocalDate date) {
         super(Type.FIND);
         this.date = Objects.requireNonNull(date, "date");
+        this.keyword = null;
+    }
+
+    /**
+     * Creates a find command for a keyword in task descriptions.
+     *
+     * @param keyword the keyword to search for
+     */
+    public FindCommand(String keyword) {
+        super(Type.FIND);
+        this.date = null;
+        this.keyword = Objects.requireNonNull(keyword, "keyword");
     }
 
     /**
@@ -33,6 +48,10 @@ public class FindCommand extends Command {
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
-        ui.showTasksOnDate(tasks, date);
+        if (date != null) {
+            ui.showTasksOnDate(tasks, date);
+        } else {
+            ui.showTasksContaining(tasks, keyword);
+        }
     }
 }

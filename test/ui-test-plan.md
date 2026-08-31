@@ -830,3 +830,71 @@ bye
 D | 0 | submit report | 2019-10-15
 D | 0 | return book | 2019-12-02 1800
 ```
+
+## Test Case 15: Find tasks by description keyword
+
+### Aim
+
+Verify that `find <keyword>` displays matching tasks case-insensitively and preserves their original task numbers.
+
+### Command
+
+```text
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+```
+
+### Inputs
+
+```text
+todo read book
+todo buy groceries
+deadline return book /by June 6th
+mark 1
+find BOOK
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] read book
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] buy groceries
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: June 6th)
+     Now you have 3 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Nice! I've marked this task as done:
+       [T][X] read book
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Here are the matching tasks in your list:
+     1.[T][X] read book
+     3.[D][ ] return book (by: June 6th)
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+```
