@@ -51,7 +51,8 @@ public class NiuLai {
                 }
 
                 if (Command.Type.LIST.matchesExactly(command)) {
-                    ui.showList(tasks);
+                    Command listCommand = new ListCommand();
+                    listCommand.execute(tasks, ui, storage);
                     continue;
                 }
 
