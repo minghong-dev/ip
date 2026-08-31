@@ -86,8 +86,9 @@ public class NiuLai {
                 if (Command.Type.TODO.matches(command)
                         || Command.Type.DEADLINE.matches(command)
                         || Command.Type.EVENT.matches(command)) {
-                    addTaskAndSave(parser.parseTaskCreation(command));
-                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                    Task task = parser.parseTaskCreation(command);
+                    Command addCommand = new AddCommand(task);
+                    addCommand.execute(tasks, ui, storage);
                     continue;
                 }
 
@@ -97,49 +98,6 @@ public class NiuLai {
             } catch (NiuLaiException e) {
                 ui.showError(e.getMessage());
             }
-        }
-    }
-
-    /**
-     * Adds a task and rolls the addition back if saving fails.
-     *
-     * @param task the task to add
-     * @throws NiuLaiException if the updated list cannot be saved
-     */
-    private void addTaskAndSave(Task task) throws NiuLaiException {
-        tasks.add(task);
-        try {
-            saveTasks();
-        } catch (NiuLaiException e) {
-            tasks.remove(tasks.size() - 1);
-            throw e;
-        }
-    }
-
-    /**
-     * Restores a task's status after a failed save.
-     *
-     * @param task the task whose status should be restored
-     * @param status the previous status
-     */
-    private static void restoreStatus(Task task, TaskStatus status) {
-        if (status == TaskStatus.COMPLETED) {
-            task.markAsDone();
-        } else {
-            task.markAsNotDone();
-        }
-    }
-
-    /**
-     * Saves the current task list and turns file-system failures into a chatbot error.
-     *
-     * @throws NiuLaiException if the task list cannot be written to disk
-     */
-    private void saveTasks() throws NiuLaiException {
-        try {
-            storage.save(tasks);
-        } catch (IOException | SecurityException e) {
-            throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
         }
     }
 
