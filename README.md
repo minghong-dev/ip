@@ -23,3 +23,21 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    ```
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+## Creating and running the fat JAR
+
+This project uses the Gradle Shadow plugin to package the application and its runtime dependencies into one executable JAR file.
+
+From the project root, run:
+
+```powershell
+.\gradlew.bat shadowJar
+```
+
+The generated file is `build\libs\niulai.jar`. Copy it into an empty folder, open a command window in that folder, and run:
+
+```text
+java -jar "niulai.jar"
+```
+
+The quotes are safe to keep and are required if the JAR filename contains spaces or characters such as `[`. The application stores its task data in a `data` folder relative to the folder from which the JAR is run.
