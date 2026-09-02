@@ -16,18 +16,19 @@ public class TaskList implements Iterable<Task> {
     /** The tasks in their display order. */
     private final ArrayList<Task> tasks;
 
-    /** Creates an empty task list. */
-    public TaskList() {
-        this.tasks = new ArrayList<>();
-    }
-
     /**
      * Creates a task list containing the supplied tasks.
      *
-     * @param tasks the initial tasks
+     * <p>No tasks may be supplied to create an empty task list.</p>
+     *
+     * @param initialTasks the tasks to add in display order
      */
-    public TaskList(List<Task> tasks) {
-        this.tasks = new ArrayList<>(Objects.requireNonNull(tasks, "tasks"));
+    public TaskList(Task... initialTasks) {
+        this.tasks = new ArrayList<>();
+        Objects.requireNonNull(initialTasks, "initialTasks");
+        for (Task task : initialTasks) {
+            add(task);
+        }
     }
 
     /**

@@ -15,7 +15,7 @@ class TaskListTest {
         Task firstMatch = new Todo("Read a book");
         Task nonMatch = new Todo("Buy groceries");
         Task secondMatch = new Deadline("Return book", "June 6th");
-        TaskList tasks = new TaskList(List.of(firstMatch, nonMatch, secondMatch));
+        TaskList tasks = new TaskList(firstMatch, nonMatch, secondMatch);
 
         List<Task> matches = tasks.findByDescription("BOOK");
 
@@ -27,7 +27,7 @@ class TaskListTest {
     /** Verifies that a keyword with no matches produces an empty result. */
     @Test
     void findByDescription_noMatch_returnsEmptyList() {
-        TaskList tasks = new TaskList(List.of(new Todo("Read a book")));
+        TaskList tasks = new TaskList(new Todo("Read a book"));
 
         assertEquals(List.of(), tasks.findByDescription("holiday"));
     }
