@@ -1,6 +1,7 @@
 package niulai;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import niulai.command.Command;
 import niulai.model.TaskList;
@@ -41,25 +42,58 @@ public class NiuLai {
         this("data/niulai.txt");
     }
 
+    /**
+     * Creates a chatbot with a caller-provided user-interface component.
+     *
+     * <p>This constructor lets the command-processing logic be reused by interfaces other than
+     * the command line, such as the JavaFX interface.</p>
+     *
+     * @param filePath the path of the task data file
+     * @param ui the component used to present chatbot responses
+     */
+    public NiuLai(String filePath, Ui ui) {
+        this.ui = Objects.requireNonNull(ui, "ui");
+        parser = new Parser();
+        storage = new Storage(filePath);
+        tasks = new TaskList();
+    }
+
     /** Runs the chatbot until the user enters {@code bye} or input ends. */
     public void run() {
-        ui.showWelcome();
-        tasks = loadTasks();
+        startSession();
 
         while (ui.hasNextLine()) {
             String command = ui.readCommand();
 
-            ui.showSeparator();
-
-            try {
-                Command parsedCommand = parser.parseCommand(command, tasks.size());
-                parsedCommand.execute(tasks, ui, storage);
-                if (parsedCommand.isExit()) {
-                    break;
-                }
-            } catch (NiuLaiException e) {
-                ui.showError(e.getMessage());
+            if (processCommand(command)) {
+                break;
             }
+        }
+    }
+
+    /** Starts a chatbot session by showing the welcome message and loading saved tasks. */
+    public void startSession() {
+        ui.showWelcome();
+        tasks = loadTasks();
+    }
+
+    /**
+     * Processes one command using the current task list.
+     *
+     * @param input the command entered by the user
+     * @return whether the command ends the chatbot session
+     */
+    public boolean processCommand(String input) {
+        String command = Objects.requireNonNull(input, "input").strip();
+        ui.showSeparator();
+
+        try {
+            Command parsedCommand = parser.parseCommand(command, tasks.size());
+            parsedCommand.execute(tasks, ui, storage);
+            return parsedCommand.isExit();
+        } catch (NiuLaiException e) {
+            ui.showError(e.getMessage());
+            return false;
         }
     }
 

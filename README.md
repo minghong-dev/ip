@@ -24,6 +24,16 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
 
+## Running the JavaFX GUI
+
+From the project root, run:
+
+```powershell
+.\gradlew.bat run
+```
+
+The GUI supports the same commands as the command-line chatbot. Tasks are saved to `data\niulai.txt` as usual. To run the original command-line interface directly, run `niulai.NiuLai` from the IDE.
+
 ## Creating and running the fat JAR
 
 This project uses the Gradle Shadow plugin to package the application and its runtime dependencies into one executable JAR file.

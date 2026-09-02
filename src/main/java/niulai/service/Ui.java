@@ -35,11 +35,11 @@ public class Ui {
 
     /** Shows the startup banner and greeting. */
     public void showWelcome() {
-        System.out.println(BANNER);
-        System.out.println(LINE);
-        System.out.println("     Hello! I'm NiuLai!");
-        System.out.println("     What can I do for you?");
-        System.out.println(LINE + "\n");
+        writeLine(BANNER);
+        writeLine(LINE);
+        writeLine("     Hello! I'm NiuLai!");
+        writeLine("     What can I do for you?");
+        writeLine(LINE + "\n");
     }
 
     /** @return whether another user command is available */
@@ -58,27 +58,27 @@ public class Ui {
 
     /** Shows the separator before a command response. */
     public void showSeparator() {
-        System.out.println(LINE);
+        writeLine(LINE);
     }
 
     /** Shows the farewell message. */
     public void showBye() {
-        System.out.println("     Bye. Hope not to see you again.");
-        System.out.println(LINE);
+        writeLine("     Bye. Hope not to see you again.");
+        writeLine(LINE);
     }
 
     /** Shows every task in display order. */
     public void showList(TaskList tasks) {
-        System.out.println("     Here are the tasks in your list:");
+        writeLine("     Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println("     " + (i + 1) + "." + tasks.get(i));
+            writeLine("     " + (i + 1) + "." + tasks.get(i));
         }
         showSeparatorAndBlankLine();
     }
 
     /** Shows deadlines and events that occur on a specified date. */
     public void showTasksOnDate(TaskList tasks, LocalDate date) {
-        System.out.println("     Here are the deadlines and events on "
+        writeLine("     Here are the deadlines and events on "
                 + date.format(DISPLAY_DATE_FORMATTER) + ":");
 
         int matches = 0;
@@ -88,13 +88,13 @@ public class Ui {
                     || task instanceof Event event && event.occursOn(date);
 
             if (occursOnDate) {
-                System.out.println("     " + (i + 1) + "." + task);
+                writeLine("     " + (i + 1) + "." + task);
                 matches++;
             }
         }
 
         if (matches == 0) {
-            System.out.println("     No deadlines or events found.");
+            writeLine("     No deadlines or events found.");
         }
 
         showSeparatorAndBlankLine();
@@ -102,20 +102,20 @@ public class Ui {
 
     /** Shows tasks whose descriptions contain a keyword, ignoring letter case. */
     public void showTasksContaining(TaskList tasks, String keyword) {
-        System.out.println("     Here are the matching tasks in your list:");
+        writeLine("     Here are the matching tasks in your list:");
 
         var matchingTasks = tasks.findByDescription(keyword);
         int matches = 0;
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
             if (matchingTasks.contains(task)) {
-                System.out.println("     " + (i + 1) + "." + task);
+                writeLine("     " + (i + 1) + "." + task);
                 matches++;
             }
         }
 
         if (matches == 0) {
-            System.out.println("     No matching tasks found.");
+            writeLine("     No matching tasks found.");
         }
 
         showSeparatorAndBlankLine();
@@ -123,49 +123,54 @@ public class Ui {
 
     /** Shows the confirmation for marking a task as done. */
     public void showTaskMarked(Task task) {
-        System.out.println("     Nice! I've marked this task as done:");
-        System.out.println("       " + task);
+        writeLine("     Nice! I've marked this task as done:");
+        writeLine("       " + task);
         showSeparatorAndBlankLine();
     }
 
     /** Shows the confirmation for marking a task as not done. */
     public void showTaskUnmarked(Task task) {
-        System.out.println("     OK, I've marked this task as not done yet:");
-        System.out.println("       " + task);
+        writeLine("     OK, I've marked this task as not done yet:");
+        writeLine("       " + task);
         showSeparatorAndBlankLine();
     }
 
     /** Shows the confirmation for deleting a task. */
     public void showTaskDeleted(Task task, int remainingTaskCount) {
-        System.out.println("     Noted. I've removed this task:");
-        System.out.println("       " + task);
-        System.out.println("     Now you have " + remainingTaskCount + " tasks in the list.");
+        writeLine("     Noted. I've removed this task:");
+        writeLine("       " + task);
+        writeLine("     Now you have " + remainingTaskCount + " tasks in the list.");
         showSeparatorAndBlankLine();
     }
 
     /** Shows the confirmation for adding a task. */
     public void showTaskAdded(Task task, int taskCount) {
-        System.out.println("     Got it. I've added this task:");
-        System.out.println("       " + task);
-        System.out.println("     Now you have " + taskCount + " tasks in the list.");
+        writeLine("     Got it. I've added this task:");
+        writeLine("       " + task);
+        writeLine("     Now you have " + taskCount + " tasks in the list.");
         showSeparatorAndBlankLine();
     }
 
     /** Shows a command-processing error. */
     public void showError(String message) {
-        System.out.println("     " + message);
+        writeLine("     " + message);
         showSeparatorAndBlankLine();
     }
 
     /** Shows the error produced when saved tasks cannot be loaded. */
     public void showLoadingError() {
         showSeparator();
-        System.out.println("     NOOO!!! I couldn't load your tasks from disk.");
+        writeLine("     NOOO!!! I couldn't load your tasks from disk.");
         showSeparatorAndBlankLine();
     }
 
     /** Shows a separator followed by a blank line. */
     private void showSeparatorAndBlankLine() {
-        System.out.println(LINE + "\n");
+        writeLine(LINE + "\n");
+    }
+
+    /** Writes one line of output to the interface's destination. */
+    protected void writeLine(String text) {
+        System.out.println(text);
     }
 }
