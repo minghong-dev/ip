@@ -5,7 +5,7 @@ package niulai.model;
  */
 public class Task {
     /** The text describing the task. */
-    protected String description;
+    private final String description;
 
     /** The completion state of the task. */
     private TaskStatus status;
