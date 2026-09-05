@@ -15,9 +15,6 @@ import niulai.NiuLai;
  * <p>The FXML files define the view while {@link MainWindow} handles user interaction.</p>
  */
 public class Main extends Application {
-    /** The default location of the task data file. */
-    private static final String DEFAULT_FILE_PATH = "data/niulai.txt";
-
     /**
      * Creates and displays the main NiuLai window.
      *
@@ -27,7 +24,7 @@ public class Main extends Application {
     public void start(Stage stage) {
         try {
             GuiUi ui = new GuiUi();
-            NiuLai chatbot = new NiuLai(DEFAULT_FILE_PATH, ui);
+            NiuLai chatbot = new NiuLai(NiuLai.DEFAULT_FILE_PATH, ui);
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
             BorderPane mainWindow = fxmlLoader.load();
             MainWindow controller = fxmlLoader.getController();
