@@ -31,10 +31,7 @@ public class NiuLai {
      * @param filePath the path of the task data file
      */
     public NiuLai(String filePath) {
-        ui = new Ui();
-        parser = new Parser();
-        storage = new Storage(filePath);
-        tasks = new TaskList();
+        this(filePath, new Ui());
     }
 
     /** Creates a chatbot backed by the default task data file. */
