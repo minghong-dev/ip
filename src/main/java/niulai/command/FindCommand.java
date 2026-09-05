@@ -48,6 +48,10 @@ public class FindCommand extends Command {
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
+        // Each constructor initializes exactly one search mode for this command.
+        assert (date == null) != (keyword == null)
+                : "A find command must have exactly one search criterion.";
+
         if (date != null) {
             ui.showTasksOnDate(tasks, date);
         } else {

@@ -40,6 +40,9 @@ public class DeleteCommand extends Command {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
             tasks.add(taskIndex, deletedTask);
+            // A failed save must put the deleted task back at its original position.
+            assert tasks.get(taskIndex) == deletedTask
+                    : "A failed save must restore the deleted task at its original position.";
             throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
         }
         ui.showTaskDeleted(deletedTask, tasks.size());
