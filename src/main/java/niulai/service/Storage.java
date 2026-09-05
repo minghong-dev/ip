@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import niulai.model.Deadline;
 import niulai.model.Event;
@@ -43,11 +45,10 @@ public class Storage {
     public void save(TaskList tasks) throws IOException {
         Objects.requireNonNull(tasks, "tasks");
 
-        ArrayList<String> lines = new ArrayList<>();
-        for (Task task : tasks) {
-            Objects.requireNonNull(task, "tasks cannot contain null");
-            lines.add(task.toStorageString());
-        }
+        List<String> lines = StreamSupport.stream(tasks.spliterator(), false)
+                .map(task -> Objects.requireNonNull(task, "tasks cannot contain null"))
+                .map(Task::toStorageString)
+                .toList();
 
         Path dataDirectory = filePath.getParent();
         if (dataDirectory == null) {
