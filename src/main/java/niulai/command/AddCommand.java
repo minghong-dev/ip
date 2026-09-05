@@ -41,7 +41,7 @@ public class AddCommand extends Command {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
             tasks.remove(tasks.size() - 1);
-            throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+            throw createStorageFailure();
         }
         ui.showTaskAdded(task, tasks.size());
     }

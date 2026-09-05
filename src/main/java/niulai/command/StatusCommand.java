@@ -44,7 +44,7 @@ abstract class StatusCommand extends Command {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
             restoreStatus(task, previousStatus);
-            throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+            throw createStorageFailure();
         }
         showConfirmation(ui, task);
     }

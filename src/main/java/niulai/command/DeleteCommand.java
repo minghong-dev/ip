@@ -40,7 +40,7 @@ public class DeleteCommand extends Command {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
             tasks.add(taskIndex, deletedTask);
-            throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+            throw createStorageFailure();
         }
         ui.showTaskDeleted(deletedTask, tasks.size());
     }
