@@ -76,8 +76,7 @@ public class Task {
      * @return the task type, completion state, and description
      */
     public String toStorageString() {
-        int completionState = status == TaskStatus.COMPLETED ? 1 : 0;
-        return getTypeIcon() + " | " + completionState + " | "
+        return getTypeIcon() + " | " + status.getStorageValue() + " | "
                 + escapeStorageField(description);
     }
 

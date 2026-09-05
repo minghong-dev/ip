@@ -16,6 +16,7 @@ import niulai.model.Deadline;
 import niulai.model.Event;
 import niulai.model.Task;
 import niulai.model.TaskList;
+import niulai.model.TaskStatus;
 import niulai.model.Todo;
 
 /**
@@ -134,16 +135,7 @@ public class Storage {
         String description = requireValue(fields.get(2), lineNumber);
         Task task;
 
-        int completionState;
-        try {
-            completionState = Integer.parseInt(fields.get(1));
-        } catch (NumberFormatException e) {
-            throw invalidLine(lineNumber, e);
-        }
-
-        if (completionState != 0 && completionState != 1) {
-            throw invalidLine(lineNumber);
-        }
+        TaskStatus status = parseStatus(fields.get(1), lineNumber);
 
         switch (type) {
             case "T":
@@ -166,11 +158,27 @@ public class Storage {
                 throw invalidLine(lineNumber);
         }
 
-        if (completionState == 1) {
+        if (status == TaskStatus.COMPLETED) {
             task.markAsDone();
         }
 
         return task;
+    }
+
+    /**
+     * Parses a persisted task status.
+     *
+     * @param value the persisted status value
+     * @param lineNumber the value's line number in the data file
+     * @return the parsed task status
+     * @throws IOException if the value is not a valid task status
+     */
+    private static TaskStatus parseStatus(String value, int lineNumber) throws IOException {
+        try {
+            return TaskStatus.fromStorageValue(Integer.parseInt(value));
+        } catch (IllegalArgumentException e) {
+            throw invalidLine(lineNumber, e);
+        }
     }
 
     /**
