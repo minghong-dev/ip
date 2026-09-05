@@ -131,22 +131,27 @@ public class Storage {
             throw invalidLine(lineNumber);
         }
 
-        String type = fields.get(0);
         String description = requireValue(fields.get(2), lineNumber);
         Task task;
 
         TaskStatus status = parseStatus(fields.get(1), lineNumber);
+        Task.TaskType type;
+        try {
+            type = Task.TaskType.fromIcon(fields.get(0));
+        } catch (IllegalArgumentException e) {
+            throw invalidLine(lineNumber, e);
+        }
 
         switch (type) {
-            case "T":
+            case TODO:
                 requireFieldCount(fields, 3, lineNumber);
                 task = new Todo(description);
                 break;
-            case "D":
+            case DEADLINE:
                 requireFieldCount(fields, 4, lineNumber);
                 task = new Deadline(description, requireValue(fields.get(3), lineNumber));
                 break;
-            case "E":
+            case EVENT:
                 requireFieldCount(fields, 5, lineNumber);
                 task = new Event(
                         description,

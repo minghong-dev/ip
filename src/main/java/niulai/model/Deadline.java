@@ -90,10 +90,10 @@ public class Deadline extends Task {
         this.byText = null;
     }
 
-    /** @return {@code D}, the type marker for a deadline */
+    /** @return the deadline task type */
     @Override
-    public String getTypeIcon() {
-        return "D";
+    public TaskType getType() {
+        return TaskType.DEADLINE;
     }
 
     /**

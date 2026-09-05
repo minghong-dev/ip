@@ -48,10 +48,10 @@ public class AddCommand extends Command {
 
     /** Maps the parsed task type to its corresponding user command type. */
     private static Type getCommandType(Task task) {
-        return switch (Objects.requireNonNull(task, "task").getTypeIcon()) {
-            case "T" -> Type.TODO;
-            case "D" -> Type.DEADLINE;
-            case "E" -> Type.EVENT;
+        return switch (Objects.requireNonNull(task, "task").getType()) {
+            case TODO -> Type.TODO;
+            case DEADLINE -> Type.DEADLINE;
+            case EVENT -> Type.EVENT;
             default -> throw new IllegalArgumentException("Unsupported task type.");
         };
     }

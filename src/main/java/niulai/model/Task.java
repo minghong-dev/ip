@@ -67,7 +67,12 @@ public class Task {
      * @return the task type marker
      */
     public String getTypeIcon() {
-        return "T";
+        return getType().getIcon();
+    }
+
+    /** @return the finite type represented by this task */
+    public TaskType getType() {
+        return TaskType.TODO;
     }
 
     /**
@@ -98,5 +103,47 @@ public class Task {
     @Override
     public String toString() {
         return "[" + getTypeIcon() + "][" + getStatusIcon() + "] " + description;
+    }
+
+    /** Represents the task types supported by the storage and display formats. */
+    public enum TaskType {
+        /** A task without an attached date or time. */
+        TODO("T"),
+
+        /** A task with a completion deadline. */
+        DEADLINE("D"),
+
+        /** A task with a start and end time. */
+        EVENT("E");
+
+        /** The marker used to persist and display this task type. */
+        private final String icon;
+
+        /** Creates a task type with its storage and display marker. */
+        TaskType(String icon) {
+            this.icon = icon;
+        }
+
+        /** @return the marker used to persist and display this task type */
+        public String getIcon() {
+            return icon;
+        }
+
+        /**
+         * Converts a persisted type marker into a task type.
+         *
+         * @param icon the persisted task-type marker
+         * @return the corresponding task type
+         * @throws IllegalArgumentException if the marker is not supported
+         */
+        public static TaskType fromIcon(String icon) {
+            for (TaskType type : values()) {
+                if (type.icon.equals(icon)) {
+                    return type;
+                }
+            }
+
+            throw new IllegalArgumentException("Unknown task type icon: " + icon);
+        }
     }
 }
