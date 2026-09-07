@@ -35,6 +35,11 @@ public class MainWindow extends BorderPane {
     /** Binds the scroll position to the height of the conversation. */
     @FXML
     public void initialize() {
+        // The FXML loader must inject every control used by this controller.
+        assert scrollPane != null && dialogContainer != null
+                && userInput != null && sendButton != null
+                : "MainWindow.fxml must inject every required control.";
+
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 

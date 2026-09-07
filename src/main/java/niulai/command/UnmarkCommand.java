@@ -43,6 +43,9 @@ public class UnmarkCommand extends Command {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
             restoreStatus(task, previousStatus);
+            // A failed save must leave the task's completion state unchanged.
+            assert task.getStatus() == previousStatus
+                    : "A failed save must restore the task's original completion state.";
             throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
         }
         ui.showTaskUnmarked(task);
