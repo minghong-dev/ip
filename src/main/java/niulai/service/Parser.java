@@ -58,26 +58,13 @@ public class Parser {
         }
 
         if (Command.Type.FIND.matches(input)) {
-            String argument = getArgument(input, Command.Type.FIND);
-            if (argument.isEmpty()) {
-                throw invalidFindArgumentError();
-            }
-            if (DATE_ARGUMENT_PATTERN.matcher(argument).matches()) {
-                return new FindCommand(parseDateArgument(input, Command.Type.FIND));
-            }
-            return new FindCommand(argument);
+            return parseFindCommand(input);
         }
 
-        if (Command.Type.MARK.matches(input)) {
-            return new MarkCommand(parseTaskIndex(input, Command.Type.MARK, taskCount));
-        }
-
-        if (Command.Type.UNMARK.matches(input)) {
-            return new UnmarkCommand(parseTaskIndex(input, Command.Type.UNMARK, taskCount));
-        }
-
-        if (Command.Type.DELETE.matches(input)) {
-            return new DeleteCommand(parseTaskIndex(input, Command.Type.DELETE, taskCount));
+        if (Command.Type.MARK.matches(input)
+                || Command.Type.UNMARK.matches(input)
+                || Command.Type.DELETE.matches(input)) {
+            return parseTaskIndexCommand(input, taskCount);
         }
 
         if (Command.Type.TODO.matches(input)
@@ -89,6 +76,31 @@ public class Parser {
         throw new NiuLaiException(
                 "NOOO!!! I don't recognize that command. Try 'list' to view your tasks."
         );
+    }
+
+    /** Parses a find command into a date search or a keyword search. */
+    private Command parseFindCommand(String input) throws NiuLaiException {
+        String argument = getArgument(input, Command.Type.FIND);
+        if (argument.isEmpty()) {
+            throw invalidFindArgumentError();
+        }
+        if (DATE_ARGUMENT_PATTERN.matcher(argument).matches()) {
+            return new FindCommand(parseDateArgument(input, Command.Type.FIND));
+        }
+        return new FindCommand(argument);
+    }
+
+    /** Parses a mark, unmark, or delete command. */
+    private Command parseTaskIndexCommand(String input, int taskCount) throws NiuLaiException {
+        if (Command.Type.MARK.matches(input)) {
+            return new MarkCommand(parseTaskIndex(input, Command.Type.MARK, taskCount));
+        }
+
+        if (Command.Type.UNMARK.matches(input)) {
+            return new UnmarkCommand(parseTaskIndex(input, Command.Type.UNMARK, taskCount));
+        }
+
+        return new DeleteCommand(parseTaskIndex(input, Command.Type.DELETE, taskCount));
     }
 
     /**

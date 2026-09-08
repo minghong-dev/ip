@@ -131,31 +131,27 @@ public class Storage {
             throw invalidLine(lineNumber);
         }
 
-        String type = fields.get(0);
         String description = requireValue(fields.get(2), lineNumber);
         Task task;
 
-        int completionState;
+        TaskStatus status = parseStatus(fields.get(1), lineNumber);
+        Task.TaskType type;
         try {
-            completionState = Integer.parseInt(fields.get(1));
-        } catch (NumberFormatException e) {
+            type = Task.TaskType.fromIcon(fields.get(0));
+        } catch (IllegalArgumentException e) {
             throw invalidLine(lineNumber, e);
         }
 
-        if (completionState != 0 && completionState != 1) {
-            throw invalidLine(lineNumber);
-        }
-
         switch (type) {
-            case "T":
+            case TODO:
                 requireFieldCount(fields, 3, lineNumber);
                 task = new Todo(description);
                 break;
-            case "D":
+            case DEADLINE:
                 requireFieldCount(fields, 4, lineNumber);
                 task = new Deadline(description, requireValue(fields.get(3), lineNumber));
                 break;
-            case "E":
+            case EVENT:
                 requireFieldCount(fields, 5, lineNumber);
                 task = new Event(
                         description,
@@ -167,19 +163,33 @@ public class Storage {
                 throw invalidLine(lineNumber);
         }
 
-        if (completionState == 1) {
+        if (status == TaskStatus.COMPLETED) {
             task.markAsDone();
         }
 
         // Loading must faithfully reconstruct the type and completion state written by save().
-        assert task.getTypeIcon().equals(type)
+        assert task.getTypeIcon().equals(type.getIcon())
                 : "A storage type marker must create a task of the same type.";
-        TaskStatus expectedStatus = completionState == 1
-                ? TaskStatus.COMPLETED : TaskStatus.PENDING;
-        assert task.getStatus() == expectedStatus
+        assert task.getStatus() == status
                 : "Loading must preserve a task's completion state.";
 
         return task;
+    }
+
+    /**
+     * Parses a persisted task status.
+     *
+     * @param value the persisted status value
+     * @param lineNumber the value's line number in the data file
+     * @return the parsed task status
+     * @throws IOException if the value is not a valid task status
+     */
+    private static TaskStatus parseStatus(String value, int lineNumber) throws IOException {
+        try {
+            return TaskStatus.fromStorageValue(Integer.parseInt(value));
+        } catch (IllegalArgumentException e) {
+            throw invalidLine(lineNumber, e);
+        }
     }
 
     /**

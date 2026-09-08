@@ -70,6 +70,18 @@ class StorageTest {
         assertEquals("Invalid task data on line 2.", exception.getMessage());
     }
 
+    /** Verifies that an unsupported persisted completion state is rejected. */
+    @Test
+    void load_invalidCompletionState_exceptionThrown() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Files.writeString(file, "T | 2 | invalid state");
+
+        IOException exception = assertThrows(IOException.class,
+                () -> new Storage(file.toString()).load());
+
+        assertEquals("Invalid task data on line 1.", exception.getMessage());
+    }
+
     /** Verifies that a missing data file is treated as an empty task list. */
     @Test
     void load_missingFile_returnsEmptyTaskList() throws IOException {

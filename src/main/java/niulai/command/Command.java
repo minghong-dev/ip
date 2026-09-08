@@ -48,6 +48,11 @@ public abstract class Command {
         return type.matches(input);
     }
 
+    /** Creates the user-facing error shared by commands when saving fails. */
+    protected static NiuLaiException createStorageFailure() {
+        return new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+    }
+
     /** Describes the keywords understood by the parser. */
     public enum Type {
         /** Exits the application. */
