@@ -167,6 +167,12 @@ public class Storage {
             task.markAsDone();
         }
 
+        // Loading must faithfully reconstruct the type and completion state written by save().
+        assert task.getTypeIcon().equals(type.getIcon())
+                : "A storage type marker must create a task of the same type.";
+        assert task.getStatus() == status
+                : "Loading must preserve a task's completion state.";
+
         return task;
     }
 

@@ -43,4 +43,20 @@ class GuiUiTest {
         assertTrue(!chatbot.processCommand("list"));
         assertTrue(ui.consumeOutput().contains("1.[T][ ] read book"));
     }
+
+    /** Verifies that keyword search uses the keyword mode of a find command. */
+    @Test
+    void processCommand_keywordFind_displaysMatchingTasks() {
+        GuiUi ui = new GuiUi();
+        Path dataFile = temporaryDirectory.resolve("niulai.txt");
+        NiuLai chatbot = new NiuLai(dataFile.toString(), ui);
+
+        chatbot.startSession();
+        ui.consumeOutput();
+        chatbot.processCommand("todo read book");
+        ui.consumeOutput();
+
+        assertTrue(!chatbot.processCommand("find read"));
+        assertTrue(ui.consumeOutput().contains("1.[T][ ] read book"));
+    }
 }

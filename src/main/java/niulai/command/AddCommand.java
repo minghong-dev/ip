@@ -40,7 +40,10 @@ public class AddCommand extends Command {
         try {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
-            tasks.remove(tasks.size() - 1);
+            Task removedTask = tasks.remove(tasks.size() - 1);
+            // A failed save must undo precisely the task added by this command.
+            assert removedTask == task
+                    : "A failed save must remove the task just added to restore the previous list.";
             throw createStorageFailure();
         }
         ui.showTaskAdded(task, tasks.size());

@@ -52,6 +52,8 @@ public class Deadline extends Task {
         this.byDate = parsedDate;
         this.byDateTime = parsedDateTime;
         this.byText = parsedDate == null && parsedDateTime == null ? value : null;
+        assert hasExactlyOneValueRepresentation()
+                : "A deadline must have exactly one value representation.";
     }
 
     /**
@@ -70,6 +72,8 @@ public class Deadline extends Task {
         this.byDate = by;
         this.byDateTime = null;
         this.byText = null;
+        assert hasExactlyOneValueRepresentation()
+                : "A deadline must have exactly one value representation.";
     }
 
     /**
@@ -88,6 +92,8 @@ public class Deadline extends Task {
         this.byDate = null;
         this.byDateTime = by;
         this.byText = null;
+        assert hasExactlyOneValueRepresentation()
+                : "A deadline must have exactly one value representation.";
     }
 
     /** @return the deadline task type */
@@ -176,6 +182,21 @@ public class Deadline extends Task {
         }
 
         return byText;
+    }
+
+    /** @return whether exactly one internal deadline-value representation is set */
+    private boolean hasExactlyOneValueRepresentation() {
+        int representationCount = 0;
+        if (byDate != null) {
+            representationCount++;
+        }
+        if (byDateTime != null) {
+            representationCount++;
+        }
+        if (byText != null) {
+            representationCount++;
+        }
+        return representationCount == 1;
     }
 
     /** Tries the supported date-and-time formats. */
