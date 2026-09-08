@@ -13,6 +13,9 @@ import niulai.service.Ui;
  * Runs the NiuLai command-line chatbot.
  */
 public class NiuLai {
+    /** The default location of the task data file. */
+    public static final String DEFAULT_FILE_PATH = "data/niulai.txt";
+
     /** The component that persists tasks between chatbot sessions. */
     private final Storage storage;
 
@@ -31,15 +34,12 @@ public class NiuLai {
      * @param filePath the path of the task data file
      */
     public NiuLai(String filePath) {
-        ui = new Ui();
-        parser = new Parser();
-        storage = new Storage(filePath);
-        tasks = new TaskList();
+        this(filePath, new Ui());
     }
 
     /** Creates a chatbot backed by the default task data file. */
     public NiuLai() {
-        this("data/niulai.txt");
+        this(DEFAULT_FILE_PATH);
     }
 
     /**

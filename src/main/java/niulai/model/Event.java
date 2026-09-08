@@ -30,10 +30,10 @@ public class Event extends Task {
         this.to = to.strip();
     }
 
-    /** @return {@code E}, the type marker for an event */
+    /** @return the event task type */
     @Override
-    public String getTypeIcon() {
-        return "E";
+    public TaskType getType() {
+        return TaskType.EVENT;
     }
 
     /**

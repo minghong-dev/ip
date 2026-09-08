@@ -44,17 +44,17 @@ public class AddCommand extends Command {
             // A failed save must undo precisely the task added by this command.
             assert removedTask == task
                     : "A failed save must remove the task just added to restore the previous list.";
-            throw new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+            throw createStorageFailure();
         }
         ui.showTaskAdded(task, tasks.size());
     }
 
     /** Maps the parsed task type to its corresponding user command type. */
     private static Type getCommandType(Task task) {
-        return switch (Objects.requireNonNull(task, "task").getTypeIcon()) {
-            case "T" -> Type.TODO;
-            case "D" -> Type.DEADLINE;
-            case "E" -> Type.EVENT;
+        return switch (Objects.requireNonNull(task, "task").getType()) {
+            case TODO -> Type.TODO;
+            case DEADLINE -> Type.DEADLINE;
+            case EVENT -> Type.EVENT;
             default -> throw new IllegalArgumentException("Unsupported task type.");
         };
     }
