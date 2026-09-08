@@ -18,6 +18,7 @@ import niulai.model.Deadline;
 import niulai.model.Event;
 import niulai.model.Task;
 import niulai.model.TaskList;
+import niulai.model.TaskStatus;
 import niulai.model.Todo;
 
 /**
@@ -170,6 +171,14 @@ public class Storage {
         if (completionState == 1) {
             task.markAsDone();
         }
+
+        // Loading must faithfully reconstruct the type and completion state written by save().
+        assert task.getTypeIcon().equals(type)
+                : "A storage type marker must create a task of the same type.";
+        TaskStatus expectedStatus = completionState == 1
+                ? TaskStatus.COMPLETED : TaskStatus.PENDING;
+        assert task.getStatus() == expectedStatus
+                : "Loading must preserve a task's completion state.";
 
         return task;
     }
