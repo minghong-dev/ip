@@ -23,10 +23,20 @@ public abstract class Command {
      * @param tasks the current task list
      * @param ui the user-interface component
      * @param storage the task storage component
+     * @return the inverse action when this command changes the task list, otherwise {@code null}
      * @throws NiuLaiException if the command cannot be completed
      */
-    public abstract void execute(TaskList tasks, Ui ui, Storage storage)
+    public abstract UndoAction execute(TaskList tasks, Ui ui, Storage storage)
             throws NiuLaiException;
+
+    /**
+     * Returns whether this command asks the chatbot to undo its most recent change.
+     *
+     * @return whether this is an undo command
+     */
+    public boolean isUndo() {
+        return false;
+    }
 
     /** @return whether executing this command should end the application */
     public boolean isExit() {
@@ -57,6 +67,9 @@ public abstract class Command {
     public enum Type {
         /** Exits the application. */
         BYE("bye"),
+
+        /** Undoes the most recent successful state-changing command. */
+        UNDO("undo"),
 
         /** Lists all tasks. */
         LIST("list"),
@@ -112,5 +125,18 @@ public abstract class Command {
             char separator = input.charAt(keyword.length());
             return Character.isWhitespace(separator) || Character.isSpaceChar(separator);
         }
+    }
+
+    /** Reverses one successful state-changing command. */
+    @FunctionalInterface
+    public interface UndoAction {
+        /**
+         * Restores the task state before the command and persists it.
+         *
+         * @param tasks the current task list
+         * @param storage the task storage component
+         * @throws NiuLaiException if the restored list cannot be saved
+         */
+        void undo(TaskList tasks, Storage storage) throws NiuLaiException;
     }
 }

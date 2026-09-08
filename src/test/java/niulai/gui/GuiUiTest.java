@@ -59,4 +59,107 @@ class GuiUiTest {
         assertTrue(!chatbot.processCommand("find read"));
         assertTrue(ui.consumeOutput().contains("1.[T][ ] read book"));
     }
+
+    /** Verifies that undo removes the task added by the most recent mutating command. */
+    @Test
+    void processCommand_undoAfterAdd_removesAddedTask() {
+        GuiUi ui = new GuiUi();
+        Path dataFile = temporaryDirectory.resolve("niulai.txt");
+        NiuLai chatbot = new NiuLai(dataFile.toString(), ui);
+
+        chatbot.startSession();
+        ui.consumeOutput();
+        chatbot.processCommand("todo read book");
+        ui.consumeOutput();
+
+        chatbot.processCommand("undo");
+        assertTrue(ui.consumeOutput().contains("undone"));
+        chatbot.processCommand("list");
+
+        assertTrue(!ui.consumeOutput().contains("read book"));
+    }
+
+    /** Verifies that undo reverses only the latest command and does not support a second undo. */
+    @Test
+    void processCommand_undoAfterMark_restoresPendingStatusOnce() {
+        GuiUi ui = new GuiUi();
+        Path dataFile = temporaryDirectory.resolve("niulai.txt");
+        NiuLai chatbot = new NiuLai(dataFile.toString(), ui);
+
+        chatbot.startSession();
+        ui.consumeOutput();
+        chatbot.processCommand("todo read book");
+        ui.consumeOutput();
+        chatbot.processCommand("mark 1");
+        ui.consumeOutput();
+
+        chatbot.processCommand("undo");
+        assertTrue(ui.consumeOutput().contains("undone"));
+        chatbot.processCommand("list");
+        assertTrue(ui.consumeOutput().contains("1.[T][ ] read book"));
+
+        chatbot.processCommand("undo");
+        assertTrue(ui.consumeOutput().contains("nothing to undo"));
+    }
+
+    /** Verifies that undo restores a task deleted by the most recent mutating command. */
+    @Test
+    void processCommand_undoAfterDelete_restoresDeletedTask() {
+        GuiUi ui = new GuiUi();
+        Path dataFile = temporaryDirectory.resolve("niulai.txt");
+        NiuLai chatbot = new NiuLai(dataFile.toString(), ui);
+
+        chatbot.startSession();
+        ui.consumeOutput();
+        chatbot.processCommand("todo read book");
+        ui.consumeOutput();
+        chatbot.processCommand("todo write report");
+        ui.consumeOutput();
+        chatbot.processCommand("delete 1");
+        ui.consumeOutput();
+
+        chatbot.processCommand("undo");
+        assertTrue(ui.consumeOutput().contains("undone"));
+        chatbot.processCommand("list");
+        String output = ui.consumeOutput();
+
+        assertTrue(output.contains("1.[T][ ] read book"));
+        assertTrue(output.contains("2.[T][ ] write report"));
+    }
+
+    /** Verifies that a read-only command leaves the most recent mutating command undoable. */
+    @Test
+    void processCommand_listDoesNotReplaceUndoTarget() {
+        GuiUi ui = new GuiUi();
+        Path dataFile = temporaryDirectory.resolve("niulai.txt");
+        NiuLai chatbot = new NiuLai(dataFile.toString(), ui);
+
+        chatbot.startSession();
+        ui.consumeOutput();
+        chatbot.processCommand("todo read book");
+        ui.consumeOutput();
+        chatbot.processCommand("list");
+        ui.consumeOutput();
+
+        chatbot.processCommand("undo");
+        assertTrue(ui.consumeOutput().contains("undone"));
+        chatbot.processCommand("list");
+
+        assertTrue(!ui.consumeOutput().contains("read book"));
+    }
+
+    /** Verifies that undo without a successful mutating command produces a helpful error. */
+    @Test
+    void processCommand_undoWithoutHistory_showsError() {
+        GuiUi ui = new GuiUi();
+        Path dataFile = temporaryDirectory.resolve("niulai.txt");
+        NiuLai chatbot = new NiuLai(dataFile.toString(), ui);
+
+        chatbot.startSession();
+        ui.consumeOutput();
+
+        chatbot.processCommand("undo");
+
+        assertTrue(ui.consumeOutput().contains("nothing to undo"));
+    }
 }

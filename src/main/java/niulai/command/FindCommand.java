@@ -47,7 +47,7 @@ public class FindCommand extends Command {
      * @param storage the task storage component
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) {
+    public UndoAction execute(TaskList tasks, Ui ui, Storage storage) {
         // Each constructor initializes exactly one search mode for this command.
         assert (date == null) != (keyword == null)
                 : "A find command must have exactly one search criterion.";
@@ -57,5 +57,6 @@ public class FindCommand extends Command {
         } else {
             ui.showTasksContaining(tasks, keyword);
         }
+        return null;
     }
 }

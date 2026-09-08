@@ -32,6 +32,7 @@ class ParserTest {
     void parseCommand_supportedCommands_returnsMatchingCommandTypes() throws NiuLaiException {
         assertInstanceOf(ExitCommand.class, parser.parseCommand("bye", 0));
         assertInstanceOf(ListCommand.class, parser.parseCommand("list", 0));
+        assertEquals("undo", parser.parseCommand("undo", 0).getKeyword());
         assertInstanceOf(FindCommand.class, parser.parseCommand("find 2026-08-31", 0));
         assertInstanceOf(FindCommand.class, parser.parseCommand("find book", 0));
         assertInstanceOf(MarkCommand.class, parser.parseCommand("mark 1", 1));

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import niulai.command.Command;
+import niulai.command.Command.UndoAction;
 import niulai.model.TaskList;
 import niulai.service.Parser;
 import niulai.service.Storage;
@@ -27,6 +28,9 @@ public class NiuLai {
 
     /** The component that interprets user commands. */
     private final Parser parser;
+
+    /** The inverse action for the most recent successful state-changing command. */
+    private UndoAction lastUndoAction;
 
     /**
      * Creates a chatbot backed by the specified task data file.
@@ -75,6 +79,7 @@ public class NiuLai {
     public void startSession() {
         ui.showWelcome();
         tasks = loadTasks();
+        lastUndoAction = null;
     }
 
     /**
@@ -89,12 +94,32 @@ public class NiuLai {
 
         try {
             Command parsedCommand = parser.parseCommand(command, tasks.size());
-            parsedCommand.execute(tasks, ui, storage);
+            if (parsedCommand.isUndo()) {
+                undoLastCommand();
+                return false;
+            }
+
+            UndoAction undoAction = parsedCommand.execute(tasks, ui, storage);
+            if (undoAction != null) {
+                lastUndoAction = undoAction;
+            }
             return parsedCommand.isExit();
         } catch (NiuLaiException e) {
             ui.showError(e.getMessage());
             return false;
         }
+    }
+
+    /** Undoes the most recent successful state-changing command, if one exists. */
+    private void undoLastCommand() throws NiuLaiException {
+        if (lastUndoAction == null) {
+            ui.showNoUndo();
+            return;
+        }
+
+        lastUndoAction.undo(tasks, storage);
+        lastUndoAction = null;
+        ui.showUndo();
     }
 
     /**

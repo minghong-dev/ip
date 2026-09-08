@@ -14,6 +14,7 @@ import niulai.command.ExitCommand;
 import niulai.command.FindCommand;
 import niulai.command.ListCommand;
 import niulai.command.MarkCommand;
+import niulai.command.UndoCommand;
 import niulai.command.UnmarkCommand;
 import niulai.model.Deadline;
 import niulai.model.Event;
@@ -55,6 +56,10 @@ public class Parser {
 
         if (Command.Type.LIST.matchesExactly(input)) {
             return new ListCommand();
+        }
+
+        if (Command.Type.UNDO.matchesExactly(input)) {
+            return new UndoCommand();
         }
 
         if (Command.Type.FIND.matches(input)) {

@@ -151,6 +151,17 @@ public class Ui {
         showSeparatorAndBlankLine();
     }
 
+    /** Shows the confirmation for undoing the most recent state-changing command. */
+    public void showUndo() {
+        writeLine("     OK, I've undone the last command.");
+        showSeparatorAndBlankLine();
+    }
+
+    /** Shows the error produced when there is no successful command to undo. */
+    public void showNoUndo() {
+        showError("NOOO!!! There is nothing to undo.");
+    }
+
     /** Shows a command-processing error. */
     public void showError(String message) {
         writeLine("     " + message);

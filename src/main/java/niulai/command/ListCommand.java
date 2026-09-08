@@ -15,7 +15,8 @@ public class ListCommand extends Command {
 
     /** Shows every task in display order. */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) {
+    public UndoAction execute(TaskList tasks, Ui ui, Storage storage) {
         ui.showList(tasks);
+        return null;
     }
 }

@@ -35,7 +35,7 @@ abstract class StatusCommand extends Command {
      * @throws NiuLaiException if the updated list cannot be saved
      */
     @Override
-    public final void execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
+    public final UndoAction execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
         Task task = tasks.get(taskIndex);
         TaskStatus previousStatus = task.getStatus();
 
@@ -50,6 +50,17 @@ abstract class StatusCommand extends Command {
             throw createStorageFailure();
         }
         showConfirmation(ui, task);
+        return (currentTasks, currentStorage) -> {
+            Task currentTask = currentTasks.get(taskIndex);
+            TaskStatus currentStatus = currentTask.getStatus();
+            restoreStatus(currentTask, previousStatus);
+            try {
+                currentStorage.save(currentTasks);
+            } catch (IOException | SecurityException e) {
+                restoreStatus(currentTask, currentStatus);
+                throw createStorageFailure();
+            }
+        };
     }
 
     /** Restores the task status that was present before execution. */

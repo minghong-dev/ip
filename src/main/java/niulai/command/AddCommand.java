@@ -35,18 +35,28 @@ public class AddCommand extends Command {
      * @throws NiuLaiException if the updated list cannot be saved
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
+    public UndoAction execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
         tasks.add(task);
+        int taskIndex = tasks.size() - 1;
         try {
             storage.save(tasks);
         } catch (IOException | SecurityException e) {
-            Task removedTask = tasks.remove(tasks.size() - 1);
+            Task removedTask = tasks.remove(taskIndex);
             // A failed save must undo precisely the task added by this command.
             assert removedTask == task
                     : "A failed save must remove the task just added to restore the previous list.";
             throw createStorageFailure();
         }
         ui.showTaskAdded(task, tasks.size());
+        return (currentTasks, currentStorage) -> {
+            Task removedTask = currentTasks.remove(taskIndex);
+            try {
+                currentStorage.save(currentTasks);
+            } catch (IOException | SecurityException e) {
+                currentTasks.add(taskIndex, removedTask);
+                throw createStorageFailure();
+            }
+        };
     }
 
     /** Maps the parsed task type to its corresponding user command type. */

@@ -34,7 +34,7 @@ public class DeleteCommand extends Command {
      * @throws NiuLaiException if the updated list cannot be saved
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
+    public UndoAction execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
         Task deletedTask = tasks.remove(taskIndex);
         try {
             storage.save(tasks);
@@ -46,5 +46,16 @@ public class DeleteCommand extends Command {
             throw createStorageFailure();
         }
         ui.showTaskDeleted(deletedTask, tasks.size());
+        return (currentTasks, currentStorage) -> {
+            currentTasks.add(taskIndex, deletedTask);
+            try {
+                currentStorage.save(currentTasks);
+            } catch (IOException | SecurityException e) {
+                Task removedTask = currentTasks.remove(taskIndex);
+                assert removedTask == deletedTask
+                        : "A failed undo must remove the task restored by delete undo.";
+                throw createStorageFailure();
+            }
+        };
     }
 }

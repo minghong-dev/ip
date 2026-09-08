@@ -15,8 +15,9 @@ public class ExitCommand extends Command {
 
     /** Shows the farewell message. */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) {
+    public UndoAction execute(TaskList tasks, Ui ui, Storage storage) {
         ui.showBye();
+        return null;
     }
 
     /** @return true because this command ends the application */
