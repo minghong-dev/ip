@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -234,5 +237,185 @@ class StorageTest {
         assertEquals(5, moveAttempts.get());
         assertFalse(Files.exists(file));
         assertInstanceOf(AccessDeniedException.class, exception.getCause());
+    }
+
+    /** Verifies UTF-8 byte-order marks and blank lines do not create phantom tasks. */
+    @Test
+    void load_bomAndBlankLines_loadsOnlyMeaningfulRecords() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Files.writeString(file, "\uFEFFT | 1 | completed\r\n\r\nT | 0 | pending\r\n");
+
+        Storage.LoadResult result = new Storage(file.toString()).load();
+
+        assertEquals(2, result.tasks().size());
+        assertEquals("X", result.tasks().get(0).getStatusIcon());
+        assertEquals("pending", result.tasks().get(1).getDescription());
+        assertEquals(List.of(), result.issues());
+    }
+
+    /** Verifies malformed fields are isolated while unknown escaped characters remain literal. */
+    @Test
+    void load_variedMalformedFields_reportsEveryBadLineAndKeepsValidRecord() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Files.writeString(file, String.join("\n",
+                "X | 0 | unknown type",
+                "T | 0 | ",
+                "T | 0 | todo | extra",
+                "D | 0 | missing deadline",
+                "D | 0 | blank deadline | ",
+                "E | 0 | missing endpoint | start",
+                "E | 0 | too many | start | end | extra",
+                "T | zero | invalid status",
+                "T | 0 | dangling\\",
+                "T | 0 | keep\\qvalue"));
+
+        Storage.LoadResult result = new Storage(file.toString()).load();
+
+        assertEquals(1, result.tasks().size());
+        assertEquals("keep\\qvalue", result.tasks().get(0).getDescription());
+        assertEquals(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), result.issues().stream()
+                .map(Storage.LoadIssue::lineNumber)
+                .toList());
+    }
+
+    /** Verifies a file created after a missing-file load is treated as an external change. */
+    @Test
+    void save_fileCreatedAfterMissingLoad_externalChangeReported() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Storage storage = new Storage(file.toString());
+        Storage.LoadResult result = storage.load();
+        Files.writeString(file, "T | 0 | external");
+
+        StorageException exception = assertThrows(StorageException.class,
+                () -> storage.save(result.tasks()));
+
+        assertEquals(StorageException.EXTERNAL_CHANGE_MESSAGE, exception.getUserMessage());
+        assertEquals("T | 0 | external", Files.readString(file));
+    }
+
+    /** Verifies a loaded file deleted externally is not silently recreated. */
+    @Test
+    void save_fileDeletedAfterLoad_externalChangeReported() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Files.writeString(file, "T | 0 | original");
+        Storage storage = new Storage(file.toString());
+        Storage.LoadResult result = storage.load();
+        Files.delete(file);
+
+        StorageException exception = assertThrows(StorageException.class,
+                () -> storage.save(result.tasks()));
+
+        assertEquals(StorageException.EXTERNAL_CHANGE_MESSAGE, exception.getUserMessage());
+        assertFalse(Files.exists(file));
+    }
+
+    /** Verifies replacing a loaded file with a directory is detected before writing. */
+    @Test
+    void save_fileReplacedByDirectoryAfterLoad_externalChangeReported() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Files.writeString(file, "T | 0 | original");
+        Storage storage = new Storage(file.toString());
+        Storage.LoadResult result = storage.load();
+        Files.delete(file);
+        Files.createDirectory(file);
+
+        StorageException exception = assertThrows(StorageException.class,
+                () -> storage.save(result.tasks()));
+
+        assertEquals(StorageException.EXTERNAL_CHANGE_MESSAGE, exception.getUserMessage());
+        assertTrue(Files.isDirectory(file));
+    }
+
+    /** Verifies unsupported atomic replacement falls back to a regular replacement move. */
+    @Test
+    void save_atomicMoveUnsupported_fallsBackAndSucceeds() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        AtomicInteger moveAttempts = new AtomicInteger();
+        Storage storage = new Storage(file.toString(), (source, target, options) -> {
+            if (moveAttempts.incrementAndGet() == 1) {
+                throw new AtomicMoveNotSupportedException(
+                        source.toString(), target.toString(), "Simulated unsupported move.");
+            }
+            Files.move(source, target, options);
+        });
+
+        storage.save(new TaskList(new Todo("saved by fallback")));
+
+        assertEquals(2, moveAttempts.get());
+        assertEquals("T | 0 | saved by fallback", Files.readString(file).strip());
+    }
+
+    /** Verifies interruption aborts retry backoff and preserves the interrupted flag. */
+    @Test
+    void save_retryInterrupted_storageExceptionPreservesInterrupt() {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Storage storage = new Storage(file.toString(), (source, target, options) -> {
+            throw new AccessDeniedException(target.toString());
+        });
+
+        try {
+            Thread.currentThread().interrupt();
+
+            StorageException exception = assertThrows(StorageException.class,
+                    () -> storage.save(new TaskList(new Todo("cannot save"))));
+
+            assertTrue(Thread.currentThread().isInterrupted());
+            assertEquals("Interrupted while retrying task-file replacement.",
+                    exception.getCause().getMessage());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    /** Verifies cleanup errors are retained without hiding the primary save failure. */
+    @Test
+    void save_moveAndCleanupFail_primaryFailureRetainsSuppressedCleanup() {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Storage storage = new Storage(file.toString(), (source, target, options) -> {
+            Files.delete(source);
+            Files.createDirectory(source);
+            Files.writeString(source.resolve("child.txt"), "prevents directory deletion");
+            throw new IOException("Simulated move failure.");
+        });
+
+        StorageException exception = assertThrows(StorageException.class,
+                () -> storage.save(new TaskList(new Todo("cannot save"))));
+
+        assertEquals("Simulated move failure.", exception.getCause().getMessage());
+        assertEquals(1, exception.getSuppressed().length);
+    }
+
+    /** Verifies storage constructors and save reject absent required dependencies. */
+    @Test
+    void storage_nullDependencies_exceptionThrown() {
+        assertThrows(NullPointerException.class, () -> new Storage(null));
+        assertThrows(NullPointerException.class,
+                () -> new Storage("unused.txt", null));
+        assertThrows(NullPointerException.class,
+                () -> new Storage("unused.txt", Files::move, null));
+        assertThrows(NullPointerException.class,
+                () -> new Storage("unused.txt").save(null));
+    }
+
+    /** Verifies load records validate inputs and defensively copy their issue list. */
+    @Test
+    void loadRecords_invalidOrMutableInputs_validateAndCopy() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Storage.LoadIssue(0, "invalid"));
+        assertThrows(NullPointerException.class,
+                () -> new Storage.LoadIssue(1, null));
+        assertThrows(NullPointerException.class,
+                () -> new Storage.LoadResult(null, List.of()));
+        assertThrows(NullPointerException.class,
+                () -> new Storage.LoadResult(new TaskList(), null));
+
+        ArrayList<Storage.LoadIssue> mutableIssues = new ArrayList<>();
+        mutableIssues.add(new Storage.LoadIssue(2, "invalid line"));
+        Storage.LoadResult result = new Storage.LoadResult(new TaskList(), mutableIssues);
+        mutableIssues.clear();
+
+        assertEquals(List.of(new Storage.LoadIssue(2, "invalid line")), result.issues());
+        assertThrows(UnsupportedOperationException.class,
+                () -> result.issues().add(new Storage.LoadIssue(3, "another line")));
     }
 }

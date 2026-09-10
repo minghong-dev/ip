@@ -58,4 +58,49 @@ class DeadlineTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new Deadline("task", "Feb 30"));
     }
+
+    /** Verifies that typed date construction produces stable display and storage values. */
+    @Test
+    void deadline_localDateValue_formattedForDisplayAndStorage() {
+        Deadline deadline = new Deadline("submit report", LocalDate.of(2026, 9, 10));
+
+        assertEquals(LocalDate.of(2026, 9, 10), deadline.getByDate());
+        assertEquals(null, deadline.getByDateTime());
+        assertEquals("[D][ ] submit report (by: Sep 10 2026)", deadline.toString());
+        assertEquals("D | 0 | submit report | 2026-09-10", deadline.toStorageString());
+    }
+
+    /** Verifies that typed date-time construction produces stable display and storage values. */
+    @Test
+    void deadline_localDateTimeValue_formattedForDisplayAndStorage() {
+        Deadline deadline = new Deadline(
+                "submit report", LocalDateTime.of(2026, 9, 10, 18, 5));
+
+        assertEquals(null, deadline.getByDate());
+        assertEquals(LocalDateTime.of(2026, 9, 10, 18, 5), deadline.getByDateTime());
+        assertEquals("[D][ ] submit report (by: Sep 10 2026 6:05 PM)", deadline.toString());
+        assertEquals("D | 0 | submit report | 2026-09-10 1805", deadline.toStorageString());
+    }
+
+    /** Verifies that typed deadline constructors reject absent date values. */
+    @Test
+    void deadline_nullTypedValue_exceptionThrown() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Deadline("task", (LocalDate) null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Deadline("task", (LocalDateTime) null));
+    }
+
+    /** Verifies all supported textual date and date-time formats. */
+    @Test
+    void deadline_supportedTextFormats_parsedAndCanonicalized() {
+        Deadline slashDate = new Deadline("first", "2/12/2019");
+        Deadline isoDateTime = new Deadline("second", "2019-12-02 18:30");
+        Deadline slashDateTime = new Deadline("third", "2/12/2019 1800");
+
+        assertEquals(LocalDate.of(2019, 12, 2), slashDate.getByDate());
+        assertEquals("D | 0 | first | 2019-12-02", slashDate.toStorageString());
+        assertEquals(LocalDateTime.of(2019, 12, 2, 18, 30), isoDateTime.getByDateTime());
+        assertEquals(LocalDateTime.of(2019, 12, 2, 18, 0), slashDateTime.getByDateTime());
+    }
 }

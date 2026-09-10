@@ -55,4 +55,45 @@ class TaskListTest {
 
         assertEquals(3, tasks.size());
     }
+
+    /** Verifies indexed insertion, removal, and iteration preserve display order. */
+    @Test
+    void indexedOperations_validTasks_preserveOrder() {
+        Task first = new Todo("first");
+        Task second = new Todo("second");
+        Task middle = new Todo("middle");
+        TaskList tasks = new TaskList(first, second);
+
+        tasks.add(1, middle);
+
+        assertEquals(List.of(first, middle, second),
+                java.util.stream.StreamSupport.stream(tasks.spliterator(), false).toList());
+        assertSame(middle, tasks.remove(1));
+        assertEquals(2, tasks.size());
+        assertSame(second, tasks.get(1));
+    }
+
+    /** Verifies null list inputs are rejected before mutating the collection. */
+    @Test
+    void taskList_nullInputs_exceptionThrownWithoutMutation() {
+        assertThrows(NullPointerException.class, () -> new TaskList((Task[]) null));
+        TaskList tasks = new TaskList(new Todo("existing"));
+
+        assertThrows(NullPointerException.class, () -> tasks.add(null));
+        assertThrows(NullPointerException.class, () -> tasks.add(0, null));
+        assertThrows(NullPointerException.class, () -> tasks.findByDescription(null));
+        assertEquals(1, tasks.size());
+    }
+
+    /** Verifies duplicate detection also applies to indexed insertion and construction. */
+    @Test
+    void duplicateTask_indexedInsertionOrConstruction_exceptionThrown() {
+        Task original = new Event("meeting", "9am", "10am");
+        Task duplicate = new Event("MEETING", "9AM", "10AM");
+        TaskList tasks = new TaskList(original);
+
+        assertThrows(DuplicateTaskException.class, () -> tasks.add(0, duplicate));
+        assertThrows(DuplicateTaskException.class,
+                () -> new TaskList(original, duplicate));
+    }
 }

@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import niulai.NiuLaiException;
 import niulai.model.Task;
@@ -19,6 +21,10 @@ import niulai.service.Ui;
 
 /** Tests that persistence commands preserve in-memory state when saving fails. */
 class PersistenceCommandTest {
+    /** Temporary directory used by successful setup saves before undo failures. */
+    @TempDir
+    Path temporaryDirectory;
+
     /** A storage implementation that always fails before writing task data. */
     private static class FailingStorage extends Storage {
         /** Creates storage that fails every save attempt. */
@@ -143,5 +149,53 @@ class PersistenceCommandTest {
         assertEquals("NOOO!!! That task is already marked as not done.",
                 exception.getMessage());
         assertEquals(TaskStatus.PENDING, task.getStatus());
+    }
+
+    /** Verifies a failed add undo puts the removed task back in memory. */
+    @Test
+    void undo_addSaveFails_restoresAddedTask() throws NiuLaiException {
+        Task task = new Todo("new task");
+        TaskList tasks = new TaskList();
+        Command.UndoAction undo = new AddCommand(task).execute(
+                tasks,
+                new Ui(),
+                new Storage(temporaryDirectory.resolve("add.txt").toString()));
+
+        assertThrows(NiuLaiException.class, () -> undo.undo(tasks, new FailingStorage()));
+
+        assertEquals(1, tasks.size());
+        assertSame(task, tasks.get(0));
+    }
+
+    /** Verifies a failed delete undo removes the task it could not persist restoring. */
+    @Test
+    void undo_deleteSaveFails_keepsTaskDeleted() throws NiuLaiException {
+        Task deletedTask = new Todo("deleted task");
+        Task remainingTask = new Todo("remaining task");
+        TaskList tasks = new TaskList(deletedTask, remainingTask);
+        Command.UndoAction undo = new DeleteCommand(0).execute(
+                tasks,
+                new Ui(),
+                new Storage(temporaryDirectory.resolve("delete.txt").toString()));
+
+        assertThrows(NiuLaiException.class, () -> undo.undo(tasks, new FailingStorage()));
+
+        assertEquals(1, tasks.size());
+        assertSame(remainingTask, tasks.get(0));
+    }
+
+    /** Verifies a failed status undo restores the status present before that undo attempt. */
+    @Test
+    void undo_markSaveFails_keepsTaskCompleted() throws NiuLaiException {
+        Task task = new Todo("read book");
+        TaskList tasks = new TaskList(task);
+        Command.UndoAction undo = new MarkCommand(0).execute(
+                tasks,
+                new Ui(),
+                new Storage(temporaryDirectory.resolve("mark.txt").toString()));
+
+        assertThrows(NiuLaiException.class, () -> undo.undo(tasks, new FailingStorage()));
+
+        assertEquals(TaskStatus.COMPLETED, task.getStatus());
     }
 }

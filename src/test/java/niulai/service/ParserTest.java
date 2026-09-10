@@ -65,10 +65,17 @@ class ParserTest {
     /** Verifies that no-argument commands reject unexpected text specifically. */
     @Test
     void parseCommand_noArgumentCommandWithExtraText_exceptionThrown() {
-        NiuLaiException exception = assertThrows(NiuLaiException.class,
+        NiuLaiException listException = assertThrows(NiuLaiException.class,
                 () -> parser.parseCommand("list now", 0));
 
-        assertEquals("NOOO!!! 'list' does not take any arguments.", exception.getMessage());
+        assertEquals("NOOO!!! 'list' does not take any arguments.",
+                listException.getMessage());
+        assertEquals("NOOO!!! 'bye' does not take any arguments.",
+                assertThrows(NiuLaiException.class,
+                        () -> parser.parseCommand("bye now", 0)).getMessage());
+        assertEquals("NOOO!!! 'undo' does not take any arguments.",
+                assertThrows(NiuLaiException.class,
+                        () -> parser.parseCommand("undo now", 0)).getMessage());
     }
 
     /** Verifies that control characters cannot be smuggled through command input. */
@@ -79,6 +86,7 @@ class ParserTest {
 
         assertEquals("NOOO!!! Commands cannot contain control characters.",
                 exception.getMessage());
+        assertThrows(NullPointerException.class, () -> parser.parseCommand(null, 0));
     }
 
     /** Verifies that a valid ISO date is parsed into the expected date value. */
@@ -107,6 +115,28 @@ class ParserTest {
     @Test
     void parseCommand_keywordFind_returnsFindCommand() throws NiuLaiException {
         assertInstanceOf(FindCommand.class, parser.parseCommand("find return book", 0));
+    }
+
+    /** Verifies that find without any search criterion receives its dedicated guidance. */
+    @Test
+    void parseCommand_findWithoutArgument_exceptionThrown() {
+        NiuLaiException exception = assertThrows(NiuLaiException.class,
+                () -> parser.parseCommand("find", 0));
+
+        assertEquals(
+                "NOOO!!! 'find' needs a keyword, such as 'find book', or a date in yyyy-mm-dd format.",
+                exception.getMessage());
+    }
+
+    /** Verifies date-shaped find arguments cannot fall back to keyword searching. */
+    @Test
+    void parseCommand_impossibleDateFind_exceptionThrown() {
+        NiuLaiException exception = assertThrows(NiuLaiException.class,
+                () -> parser.parseCommand("find 2026-02-30", 0));
+
+        assertEquals(
+                "NOOO!!! 'find' needs a date in yyyy-mm-dd format, such as 'find 2026-08-25'.",
+                exception.getMessage());
     }
 
     /** Verifies that each supported task syntax creates the correct task details. */
@@ -152,6 +182,48 @@ class ParserTest {
         assertThrows(NiuLaiException.class,
                 () -> parser.parseTaskCreation(
                         "event meeting /to 11am /from 10am"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation(
+                        "deadline report /from today /by tomorrow"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation(
+                        "deadline report /to tomorrow /by Friday"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation(
+                        "event meeting /by today /from 10am /to 11am"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation(
+                        "event meeting /from 10am /to 11am /to noon"));
+    }
+
+    /** Verifies each missing creation field receives a validation error. */
+    @Test
+    void parseTaskCreation_missingIndividualFields_exceptionThrown() {
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("deadline /by tomorrow"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("deadline report /by"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("event /from 10am /to 11am"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("event meeting /from /to 11am"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("event meeting /from 10am /to"));
+    }
+
+    /** Verifies parameter markers are forbidden only when they are standalone words. */
+    @Test
+    void parseTodo_parameterMarkersAndEmbeddedText_rejectsOnlyStandaloneMarkers()
+            throws NiuLaiException {
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("todo report /by tomorrow"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("todo meeting /from 10am"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("todo meeting /to 11am"));
+
+        Task task = parser.parseTaskCreation("todo document/from-home");
+        assertEquals("document/from-home", task.getDescription());
     }
 
     /** Verifies that model temporal errors become expected command errors. */

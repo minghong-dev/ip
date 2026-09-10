@@ -1,5 +1,6 @@
 package niulai.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,6 +46,12 @@ class EventTest {
     void event_blankEndpoint_exceptionThrown() {
         assertThrows(IllegalArgumentException.class,
                 () -> new Event("meeting", "", "10am"));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Event("meeting", null, "10am"));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Event("meeting", "9am", ""));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Event("meeting", "9am", null));
     }
 
     /** Verifies that an event with equal comparable endpoints is rejected. */
@@ -71,5 +78,26 @@ class EventTest {
         Event event = new Event("meeting", "after lunch", "before dinner");
 
         assertTrue(event.toString().contains("from: after lunch to: before dinner"));
+    }
+
+    /** Verifies that event fields are normalized and escaped in storage. */
+    @Test
+    void eventRepresentation_whitespaceAndStorageCharacters_normalizedAndEscaped() {
+        Event event = new Event(" team | sync ", " after \\ lunch ", " before | dinner ");
+
+        assertEquals("[E][ ] team | sync (from: after \\ lunch to: before | dinner)",
+                event.toString());
+        assertEquals("E | 0 | team \\| sync | after \\\\ lunch | before \\| dinner",
+                event.toStorageString());
+    }
+
+    /** Verifies that one unrecognized endpoint prevents an accidental calendar match. */
+    @Test
+    void occursOn_partlyFreeFormEndpoints_returnsFalse() {
+        Event freeFormEnd = new Event("meeting", "2026-09-10", "someday later");
+        Event freeFormStart = new Event("meeting", "someday", "2026-09-10");
+
+        assertFalse(freeFormEnd.occursOn(LocalDate.of(2026, 9, 10)));
+        assertFalse(freeFormStart.occursOn(LocalDate.of(2026, 9, 10)));
     }
 }
