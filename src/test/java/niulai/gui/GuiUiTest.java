@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,6 +28,20 @@ class GuiUiTest {
                 ui.consumeOutput()
         );
         assertEquals("", ui.consumeOutput());
+    }
+
+    /** Verifies that recovery warnings identify every skipped storage line. */
+    @Test
+    void showRecoveryWarning_multipleIssues_reportsStableLineList() {
+        GuiUi ui = new GuiUi();
+
+        ui.showRecoveryWarning(List.of(2, 4));
+
+        assertEquals(
+                "Warning: I skipped invalid task data on lines 2, 4.\n"
+                        + "The original file will be backed up before your next saved change.",
+                ui.consumeOutput()
+        );
     }
 
     @Test

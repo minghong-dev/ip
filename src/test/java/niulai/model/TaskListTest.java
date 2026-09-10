@@ -2,6 +2,7 @@ package niulai.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -30,5 +31,28 @@ class TaskListTest {
         TaskList tasks = new TaskList(new Todo("Read a book"));
 
         assertEquals(List.of(), tasks.findByDescription("holiday"));
+    }
+
+    /** Verifies that case and spacing variants of one task are duplicates. */
+    @Test
+    void add_sameNormalizedIdentity_exceptionThrownWithoutMutation() {
+        Task first = new Todo("Read   Book");
+        TaskList tasks = new TaskList(first);
+
+        assertThrows(DuplicateTaskException.class,
+                () -> tasks.add(new Todo("  read book  ")));
+        assertEquals(1, tasks.size());
+        assertSame(first, tasks.get(0));
+    }
+
+    /** Verifies that task type and temporal details remain part of identity. */
+    @Test
+    void add_differentTypeOrDetails_tasksRemainDistinct() {
+        TaskList tasks = new TaskList(new Todo("read book"));
+
+        tasks.add(new Deadline("read book", "tomorrow"));
+        tasks.add(new Deadline("read book", "Friday"));
+
+        assertEquals(3, tasks.size());
     }
 }

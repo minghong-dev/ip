@@ -47,7 +47,9 @@ public class TaskList implements Iterable<Task> {
      * @param task the task to add
      */
     public void add(Task task) {
-        tasks.add(Objects.requireNonNull(task, "task"));
+        Task taskToAdd = Objects.requireNonNull(task, "task");
+        requireUnique(taskToAdd);
+        tasks.add(taskToAdd);
     }
 
     /**
@@ -57,7 +59,9 @@ public class TaskList implements Iterable<Task> {
      * @param task the task to insert
      */
     public void add(int index, Task task) {
-        tasks.add(index, Objects.requireNonNull(task, "task"));
+        Task taskToAdd = Objects.requireNonNull(task, "task");
+        requireUnique(taskToAdd);
+        tasks.add(index, taskToAdd);
     }
 
     /**
@@ -94,5 +98,14 @@ public class TaskList implements Iterable<Task> {
     @Override
     public Iterator<Task> iterator() {
         return tasks.iterator();
+    }
+
+    /** Rejects a task whose normalized identity already exists in the list. */
+    private void requireUnique(Task task) {
+        boolean isDuplicate = tasks.stream()
+                .anyMatch(existingTask -> existingTask.hasSameIdentity(task));
+        if (isDuplicate) {
+            throw new DuplicateTaskException();
+        }
     }
 }

@@ -1,6 +1,7 @@
 package niulai.model;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -42,7 +43,33 @@ class EventTest {
     /** Verifies that missing event endpoints are rejected. */
     @Test
     void event_blankEndpoint_exceptionThrown() {
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> new Event("meeting", "", "10am"));
+    }
+
+    /** Verifies that an event with equal comparable endpoints is rejected. */
+    @Test
+    void event_equalComparableEndpoints_exceptionThrown() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Event("meeting", "2026-09-10 1000", "2026-09-10 1000"));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Event("meeting", "10am", "10am"));
+    }
+
+    /** Verifies that an event ending before its comparable start is rejected. */
+    @Test
+    void event_reversedComparableEndpoints_exceptionThrown() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Event("meeting", "2026-09-11", "2026-09-10"));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Event("meeting", "11am", "10am"));
+    }
+
+    /** Verifies that free-form event endpoints remain accepted and unchanged. */
+    @Test
+    void event_freeFormEndpoints_preserved() {
+        Event event = new Event("meeting", "after lunch", "before dinner");
+
+        assertTrue(event.toString().contains("from: after lunch to: before dinner"));
     }
 }

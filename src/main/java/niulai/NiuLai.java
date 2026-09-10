@@ -1,6 +1,5 @@
 package niulai;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import niulai.command.Command;
@@ -8,6 +7,7 @@ import niulai.command.Command.UndoAction;
 import niulai.model.TaskList;
 import niulai.service.Parser;
 import niulai.service.Storage;
+import niulai.service.StorageException;
 import niulai.service.Ui;
 
 /**
@@ -129,9 +129,15 @@ public class NiuLai {
      */
     private TaskList loadTasks() {
         try {
-            return storage.load();
-        } catch (IOException | SecurityException e) {
-            ui.showLoadingError();
+            Storage.LoadResult result = storage.load();
+            if (!result.issues().isEmpty()) {
+                ui.showRecoveryWarning(result.issues().stream()
+                        .map(Storage.LoadIssue::lineNumber)
+                        .toList());
+            }
+            return result.tasks();
+        } catch (StorageException e) {
+            ui.showLoadingError(e.getUserMessage());
             return new TaskList();
         }
     }

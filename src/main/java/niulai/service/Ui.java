@@ -2,6 +2,7 @@ package niulai.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -168,10 +169,25 @@ public class Ui {
         showSeparatorAndBlankLine();
     }
 
-    /** Shows the error produced when saved tasks cannot be loaded. */
-    public void showLoadingError() {
+    /** Shows a warning for saved lines skipped while recovering valid tasks. */
+    public void showRecoveryWarning(List<Integer> lineNumbers) {
+        List<Integer> lines = List.copyOf(lineNumbers);
+        if (lines.isEmpty()) {
+            return;
+        }
+
+        String label = lines.size() == 1 ? "line " : "lines ";
+        String numbers = String.join(", ", lines.stream().map(String::valueOf).toList());
         showSeparator();
-        writeLine("     NOOO!!! I couldn't load your tasks from disk.");
+        writeLine("     Warning: I skipped invalid task data on " + label + numbers + ".");
+        writeLine("     The original file will be backed up before your next saved change.");
+        showSeparatorAndBlankLine();
+    }
+
+    /** Shows an actionable error produced when saved tasks cannot be loaded. */
+    public void showLoadingError(String message) {
+        showSeparator();
+        writeLine("     NOOO!!! " + message);
         showSeparatorAndBlankLine();
     }
 

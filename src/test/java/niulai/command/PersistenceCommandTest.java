@@ -14,6 +14,7 @@ import niulai.model.TaskList;
 import niulai.model.TaskStatus;
 import niulai.model.Todo;
 import niulai.service.Storage;
+import niulai.service.StorageException;
 import niulai.service.Ui;
 
 /** Tests that persistence commands preserve in-memory state when saving fails. */
@@ -32,6 +33,20 @@ class PersistenceCommandTest {
         }
     }
 
+    /** A storage implementation that reports a specific expected persistence failure. */
+    private static class TypedFailingStorage extends Storage {
+        /** Creates storage that rejects saves because its loaded file changed externally. */
+        TypedFailingStorage() {
+            super("unused.txt");
+        }
+
+        /** Always simulates an external data-file change. */
+        @Override
+        public void save(TaskList tasks) throws IOException {
+            throw new StorageException(StorageException.EXTERNAL_CHANGE_MESSAGE);
+        }
+    }
+
     /** Verifies that a failed add removes only the task that was just appended. */
     @Test
     void execute_addSaveFails_removesAddedTask() {
@@ -42,6 +57,22 @@ class PersistenceCommandTest {
         assertThrows(NiuLaiException.class,
                 () -> new AddCommand(addedTask).execute(tasks, new Ui(), new FailingStorage()));
 
+        assertEquals(1, tasks.size());
+        assertSame(originalTask, tasks.get(0));
+    }
+
+    /** Verifies that commands preserve actionable typed storage messages while rolling back. */
+    @Test
+    void execute_typedStorageFailure_specificMessageReturnedAndTaskRemoved() {
+        Task originalTask = new Todo("existing task");
+        TaskList tasks = new TaskList(originalTask);
+
+        NiuLaiException exception = assertThrows(NiuLaiException.class,
+                () -> new AddCommand(new Todo("new task"))
+                        .execute(tasks, new Ui(), new TypedFailingStorage()));
+
+        assertEquals("NOOO!!! " + StorageException.EXTERNAL_CHANGE_MESSAGE,
+                exception.getMessage());
         assertEquals(1, tasks.size());
         assertSame(originalTask, tasks.get(0));
     }
@@ -84,5 +115,33 @@ class PersistenceCommandTest {
                 () -> new UnmarkCommand(0).execute(tasks, new Ui(), new FailingStorage()));
 
         assertEquals(TaskStatus.COMPLETED, task.getStatus());
+    }
+
+    /** Verifies that marking an already completed task is rejected before persistence. */
+    @Test
+    void execute_markAlreadyCompleted_exceptionExplainsNoOp() {
+        Task task = new Todo("read book");
+        task.markAsDone();
+        TaskList tasks = new TaskList(task);
+
+        NiuLaiException exception = assertThrows(NiuLaiException.class,
+                () -> new MarkCommand(0).execute(tasks, new Ui(), new FailingStorage()));
+
+        assertEquals("NOOO!!! That task is already marked as done.", exception.getMessage());
+        assertEquals(TaskStatus.COMPLETED, task.getStatus());
+    }
+
+    /** Verifies that unmarking an already pending task is rejected before persistence. */
+    @Test
+    void execute_unmarkAlreadyPending_exceptionExplainsNoOp() {
+        Task task = new Todo("read book");
+        TaskList tasks = new TaskList(task);
+
+        NiuLaiException exception = assertThrows(NiuLaiException.class,
+                () -> new UnmarkCommand(0).execute(tasks, new Ui(), new FailingStorage()));
+
+        assertEquals("NOOO!!! That task is already marked as not done.",
+                exception.getMessage());
+        assertEquals(TaskStatus.PENDING, task.getStatus());
     }
 }

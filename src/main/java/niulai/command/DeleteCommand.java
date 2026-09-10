@@ -43,7 +43,7 @@ public class DeleteCommand extends Command {
             // A failed save must put the deleted task back at its original position.
             assert tasks.get(taskIndex) == deletedTask
                     : "A failed save must restore the deleted task at its original position.";
-            throw createStorageFailure();
+            throw createStorageFailure(e);
         }
         ui.showTaskDeleted(deletedTask, tasks.size());
         return (currentTasks, currentStorage) -> {
@@ -54,7 +54,7 @@ public class DeleteCommand extends Command {
                 Task removedTask = currentTasks.remove(taskIndex);
                 assert removedTask == deletedTask
                         : "A failed undo must remove the task restored by delete undo.";
-                throw createStorageFailure();
+                throw createStorageFailure(e);
             }
         };
     }

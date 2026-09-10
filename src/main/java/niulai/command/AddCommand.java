@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import niulai.NiuLaiException;
+import niulai.model.DuplicateTaskException;
 import niulai.model.Task;
 import niulai.model.TaskList;
 import niulai.service.Storage;
@@ -36,7 +37,11 @@ public class AddCommand extends Command {
      */
     @Override
     public UndoAction execute(TaskList tasks, Ui ui, Storage storage) throws NiuLaiException {
-        tasks.add(task);
+        try {
+            tasks.add(task);
+        } catch (DuplicateTaskException e) {
+            throw new NiuLaiException("NOOO!!! " + e.getMessage());
+        }
         int taskIndex = tasks.size() - 1;
         try {
             storage.save(tasks);
@@ -45,7 +50,7 @@ public class AddCommand extends Command {
             // A failed save must undo precisely the task added by this command.
             assert removedTask == task
                     : "A failed save must remove the task just added to restore the previous list.";
-            throw createStorageFailure();
+            throw createStorageFailure(e);
         }
         ui.showTaskAdded(task, tasks.size());
         return (currentTasks, currentStorage) -> {
@@ -54,7 +59,7 @@ public class AddCommand extends Command {
                 currentStorage.save(currentTasks);
             } catch (IOException | SecurityException e) {
                 currentTasks.add(taskIndex, removedTask);
-                throw createStorageFailure();
+                throw createStorageFailure(e);
             }
         };
     }

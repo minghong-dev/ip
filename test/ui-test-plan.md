@@ -3,10 +3,83 @@
 This file is the source of truth for the scripted command-line UI tests. Run it from the repository root with:
 
 ```powershell
-& "<python-3>" .codex/skills/test-ui/scripts/run_ui_tests.py
+& "<python-3>" .codex/skills/test-ui/scripts/run_ui_tests.py --timeout 60
 ```
 
-The runner executes test cases from top to bottom. It supplies the `Inputs` block to the command's standard input, compares the complete merged console output with `Expected output`, and stops immediately at the first failure. Line-ending differences and final newline characters are ignored; spaces inside the output are significant.
+## Test Case 17: Reject malformed and duplicate task commands
+
+### Aim
+
+Verify that command whitespace is normalized and that invalid dates, reversed event times,
+unexpected arguments, duplicate tasks, and repeated status changes produce clear errors.
+
+### Command
+
+```text
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+```
+
+### Inputs
+
+```text
+   todo   Read    Book
+todo read book
+deadline report /by 2026-02-30
+event meeting /from 11am /to 10am
+list extra
+mark 1
+mark 1
+bye
+```
+
+### Expected output
+
+```text
+|\ | | |  | |     /\  |
+| \| | \__/ |___ /~~\ |
+
+    ____________________________________________________________
+     Hello! I'm NiuLai!
+     What can I do for you?
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] Read Book
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     NOOO!!! That task already exists.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     NOOO!!! Invalid date or time: 2026-02-30.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     NOOO!!! An event must end after it starts.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     NOOO!!! 'list' does not take any arguments.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Nice! I've marked this task as done:
+       [T][X] Read Book
+    ____________________________________________________________
+
+    ____________________________________________________________
+     NOOO!!! That task is already marked as done.
+    ____________________________________________________________
+
+    ____________________________________________________________
+     Bye. Hope not to see you again.
+    ____________________________________________________________
+```
+
+The runner executes test cases from top to bottom. It supplies the `Inputs` block to the command's standard input, compares the complete merged console output with `Expected output`, and stops immediately at the first failure. Line-ending differences and final newline characters are ignored; spaces inside the output are significant. The 60-second per-case timeout allows the repeated Java 25 compilation step to complete reliably on slower runs.
 
 Java commands in this plan require JDK 25. The compile step is included in each command so that the plan can be run from a clean checkout.
 
@@ -19,7 +92,7 @@ Verify that the application starts successfully and exits with the expected fare
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -53,7 +126,7 @@ Verify that missing, non-numeric, zero, and out-of-range task numbers are reject
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -137,7 +210,7 @@ Verify that a blank command is rejected without adding a task and that a valid c
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -189,7 +262,7 @@ Verify that todo, deadline, and event commands preserve their descriptions and d
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -252,7 +325,7 @@ Verify that an empty todo description and an unknown command produce helpful err
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -296,7 +369,7 @@ Verify that malformed todo, deadline, and event commands are rejected, while val
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -334,7 +407,7 @@ bye
     ____________________________________________________________
 
     ____________________________________________________________
-     NOOO!!! A deadline must look like: deadline <description> /by <date or time>.
+     NOOO!!! A deadline needs both a description and a /by date or time.
     ____________________________________________________________
 
     ____________________________________________________________
@@ -374,7 +447,7 @@ Verify that a task can be deleted by its displayed number, that the remaining ta
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -458,7 +531,7 @@ Verify that the chatbot starts when both the data folder and file are absent, an
 ### Command
 
 ```text
-(if exist data rmdir /s /q data) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
+(if exist data rmdir /s /q data) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -500,7 +573,7 @@ Verify that flexible whitespace is accepted and that pipes and backslashes in ta
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -570,7 +643,7 @@ This case runs after Test Case 9, which leaves the escaped task data in `data\ni
 ### Command
 
 ```text
-javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -607,12 +680,13 @@ bye
 
 ### Aim
 
-Verify that malformed saved data produces a helpful error without crashing the chatbot, and that later commands still work.
+Verify that valid records survive a malformed saved line, the skipped line is reported, and the
+original file is backed up before a recovered list is saved.
 
 ### Command
 
 ```text
-(if not exist data mkdir data) & (echo malformed>data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & (if exist data\niulai.txt.bak del data\niulai.txt.bak) & (if exist data\niulai.txt.bak.1 del data\niulai.txt.bak.1) & (if not exist data mkdir data) & (echo T ^| 0 ^| saved task>data\niulai.txt) & (echo malformed>>data\niulai.txt) & (echo D ^| 0 ^| submit report ^| tomorrow>>data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt.bak && type data\niulai.txt
 ```
 
 ### Inputs
@@ -636,27 +710,38 @@ bye
     ____________________________________________________________
 
     ____________________________________________________________
-     NOOO!!! I couldn't load your tasks from disk.
+     Warning: I skipped invalid task data on line 2.
+     The original file will be backed up before your next saved change.
     ____________________________________________________________
 
     ____________________________________________________________
      Here are the tasks in your list:
+     1.[T][ ] saved task
+     2.[D][ ] submit report (by: tomorrow)
     ____________________________________________________________
 
     ____________________________________________________________
      Got it. I've added this task:
        [T][ ] recovered task
-     Now you have 1 tasks in the list.
+     Now you have 3 tasks in the list.
     ____________________________________________________________
 
     ____________________________________________________________
      Here are the tasks in your list:
-     1.[T][ ] recovered task
+     1.[T][ ] saved task
+     2.[D][ ] submit report (by: tomorrow)
+     3.[T][ ] recovered task
     ____________________________________________________________
 
     ____________________________________________________________
      Bye. Hope not to see you again.
     ____________________________________________________________
+T | 0 | saved task
+malformed
+D | 0 | submit report | tomorrow
+T | 0 | saved task
+D | 0 | submit report | tomorrow
+T | 0 | recovered task
 ```
 
 ## Test Case 12: Save tasks after list changes
@@ -668,7 +753,7 @@ Verify that adding, marking, and deleting tasks automatically writes the current
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -742,7 +827,7 @@ This case runs after Test Case 12, which leaves `data\niulai.txt` containing the
 ### Command
 
 ```text
-javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -783,7 +868,7 @@ Verify that ISO dates and day/month/year dates with times are stored as date val
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai && type data\niulai.txt
 ```
 
 ### Inputs
@@ -840,7 +925,7 @@ Verify that `find <keyword>` displays matching tasks case-insensitively and pres
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs
@@ -908,7 +993,7 @@ Verify that `undo` removes the task created by the most recent successful state-
 ### Command
 
 ```text
-(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
+(if exist data\niulai.txt del data\niulai.txt) & javac -d out src/main/java/niulai/NiuLai.java src/main/java/niulai/NiuLaiException.java src/main/java/niulai/model/Task.java src/main/java/niulai/model/TaskStatus.java src/main/java/niulai/model/TemporalValue.java src/main/java/niulai/model/DuplicateTaskException.java src/main/java/niulai/command/Command.java src/main/java/niulai/command/StatusCommand.java src/main/java/niulai/command/ExitCommand.java src/main/java/niulai/command/UndoCommand.java src/main/java/niulai/command/ListCommand.java src/main/java/niulai/command/DeleteCommand.java src/main/java/niulai/command/MarkCommand.java src/main/java/niulai/command/UnmarkCommand.java src/main/java/niulai/command/AddCommand.java src/main/java/niulai/command/FindCommand.java src/main/java/niulai/model/Todo.java src/main/java/niulai/model/Deadline.java src/main/java/niulai/model/Event.java src/main/java/niulai/model/TaskList.java src/main/java/niulai/service/Parser.java src/main/java/niulai/service/Ui.java src/main/java/niulai/service/StorageException.java src/main/java/niulai/service/Storage.java && java -cp out niulai.NiuLai
 ```
 
 ### Inputs

@@ -25,14 +25,6 @@ import niulai.model.Todo;
  * Parses and validates commands entered by the user.
  */
 public class Parser {
-    /** Matches the description and /by field of a deadline command. */
-    private static final Pattern DEADLINE_PATTERN =
-            Pattern.compile("^(.+?)\\s+/by\\s+(.+)$");
-
-    /** Matches the description, /from field, and /to field of an event command. */
-    private static final Pattern EVENT_PATTERN =
-            Pattern.compile("^(.+?)\\s+/from\\s+(.+?)\\s+/to\\s+(.+)$");
-
     /** Parses the date format accepted by the find command. */
     private static final DateTimeFormatter INPUT_DATE_FORMATTER =
             DateTimeFormatter.ISO_LOCAL_DATE;
@@ -40,6 +32,13 @@ public class Parser {
     /** Recognizes the date-shaped arguments reserved for the date-search variant of find. */
     private static final Pattern DATE_ARGUMENT_PATTERN =
             Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
+
+    /** Matches horizontal whitespace accepted between command fields. */
+    private static final Pattern HORIZONTAL_WHITESPACE_PATTERN =
+            Pattern.compile("[\\p{Zs}\\t]+");
+
+    /** Matches a positive whole-number shape before range checks are applied. */
+    private static final Pattern TASK_NUMBER_PATTERN = Pattern.compile("^[0-9]+$");
 
     /**
      * Parses complete user input into an executable command.
@@ -50,32 +49,43 @@ public class Parser {
      * @throws NiuLaiException if the input is unknown or malformed
      */
     public Command parseCommand(String input, int taskCount) throws NiuLaiException {
-        if (Command.Type.BYE.matchesExactly(input)) {
+        String normalizedInput = normalizeInput(input);
+        if (Command.Type.BYE.matchesExactly(normalizedInput)) {
             return new ExitCommand();
         }
 
-        if (Command.Type.LIST.matchesExactly(input)) {
+        if (Command.Type.LIST.matchesExactly(normalizedInput)) {
             return new ListCommand();
         }
 
-        if (Command.Type.UNDO.matchesExactly(input)) {
+        if (Command.Type.UNDO.matchesExactly(normalizedInput)) {
             return new UndoCommand();
         }
 
-        if (Command.Type.FIND.matches(input)) {
-            return parseFindCommand(input);
+        if (Command.Type.FIND.matches(normalizedInput)) {
+            return parseFindCommand(normalizedInput);
         }
 
-        if (Command.Type.MARK.matches(input)
-                || Command.Type.UNMARK.matches(input)
-                || Command.Type.DELETE.matches(input)) {
-            return parseTaskIndexCommand(input, taskCount);
+        if (Command.Type.MARK.matches(normalizedInput)
+                || Command.Type.UNMARK.matches(normalizedInput)
+                || Command.Type.DELETE.matches(normalizedInput)) {
+            return parseTaskIndexCommand(normalizedInput, taskCount);
         }
 
-        if (Command.Type.TODO.matches(input)
-                || Command.Type.DEADLINE.matches(input)
-                || Command.Type.EVENT.matches(input)) {
-            return new AddCommand(parseTaskCreation(input));
+        if (Command.Type.TODO.matches(normalizedInput)
+                || Command.Type.DEADLINE.matches(normalizedInput)
+                || Command.Type.EVENT.matches(normalizedInput)) {
+            return new AddCommand(parseTaskCreation(normalizedInput));
+        }
+
+        for (Command.Type type : new Command.Type[]{
+            Command.Type.BYE, Command.Type.LIST, Command.Type.UNDO
+        }) {
+            if (type.matches(normalizedInput)) {
+                throw new NiuLaiException(
+                        "NOOO!!! '" + type.getKeyword() + "' does not take any arguments."
+                );
+            }
         }
 
         throw new NiuLaiException(
@@ -118,7 +128,7 @@ public class Parser {
      */
     public LocalDate parseDateArgument(String input, Command.Type command)
             throws NiuLaiException {
-        String argument = getArgument(input, command);
+        String argument = getArgument(normalizeInput(input), command);
 
         if (argument.isEmpty()) {
             throw invalidDateError();
@@ -142,7 +152,7 @@ public class Parser {
      */
     public int parseTaskIndex(String input, Command.Type command, int taskCount)
             throws NiuLaiException {
-        String argument = getArgument(input, command);
+        String argument = getArgument(normalizeInput(input), command);
 
         if (argument.isEmpty()) {
             throw new NiuLaiException(
@@ -151,14 +161,15 @@ public class Parser {
             );
         }
 
+        if (!TASK_NUMBER_PATTERN.matcher(argument).matches()) {
+            throw invalidTaskNumberError(command);
+        }
+
         int taskNumber;
         try {
             taskNumber = Integer.parseInt(argument);
         } catch (NumberFormatException e) {
-            throw new NiuLaiException(
-                    "NOOO!!! Task numbers must be positive whole numbers, such as '"
-                            + command.getKeyword() + " 1'."
-            );
+            throw invalidTaskNumberError(command);
         }
 
         if (taskNumber < 1 || taskNumber > taskCount) {
@@ -179,16 +190,17 @@ public class Parser {
      * @throws NiuLaiException if the command's fields are missing or malformed
      */
     public Task parseTaskCreation(String input) throws NiuLaiException {
-        if (Command.Type.TODO.matches(input)) {
-            return parseTodo(input);
+        String normalizedInput = normalizeInput(input);
+        if (Command.Type.TODO.matches(normalizedInput)) {
+            return parseTodo(normalizedInput);
         }
 
-        if (Command.Type.DEADLINE.matches(input)) {
-            return parseDeadline(input);
+        if (Command.Type.DEADLINE.matches(normalizedInput)) {
+            return parseDeadline(normalizedInput);
         }
 
-        if (Command.Type.EVENT.matches(input)) {
-            return parseEvent(input);
+        if (Command.Type.EVENT.matches(normalizedInput)) {
+            return parseEvent(normalizedInput);
         }
 
         throw new NiuLaiException(
@@ -204,52 +216,80 @@ public class Parser {
                     "NOOO!!! A todo needs a description. Try: todo <description>."
             );
         }
+        if (containsAnyMarker(description)) {
+            throw new NiuLaiException(
+                    "NOOO!!! A todo does not use /by, /from, or /to parameters."
+            );
+        }
         return new Todo(description);
     }
 
     /** Parses a deadline creation command. */
     private Task parseDeadline(String input) throws NiuLaiException {
         String details = getArgument(input, Command.Type.DEADLINE);
-        Matcher matcher = DEADLINE_PATTERN.matcher(details);
-
-        if (!matcher.matches()) {
+        Matcher byMatcher = markerPattern("/by").matcher(details);
+        if (!byMatcher.find() || byMatcher.find()
+                || markerPattern("/from").matcher(details).find()
+                || markerPattern("/to").matcher(details).find()) {
             throw new NiuLaiException(
                     "NOOO!!! A deadline must look like: deadline <description> /by <date or time>."
             );
         }
 
-        String description = matcher.group(1).strip();
-        String by = matcher.group(2).strip();
+        byMatcher.reset();
+        byMatcher.find();
+        String description = details.substring(0, byMatcher.start()).strip();
+        String by = details.substring(byMatcher.end()).strip();
         if (description.isEmpty() || by.isEmpty()) {
             throw new NiuLaiException(
                     "NOOO!!! A deadline needs both a description and a /by date or time."
             );
         }
 
-        return new Deadline(description, by);
+        try {
+            return new Deadline(description, by);
+        } catch (IllegalArgumentException e) {
+            throw new NiuLaiException("NOOO!!! " + e.getMessage());
+        }
     }
 
     /** Parses an event creation command. */
     private Task parseEvent(String input) throws NiuLaiException {
         String details = getArgument(input, Command.Type.EVENT);
-        Matcher matcher = EVENT_PATTERN.matcher(details);
-
-        if (!matcher.matches()) {
+        Matcher fromMatcher = markerPattern("/from").matcher(details);
+        Matcher toMatcher = markerPattern("/to").matcher(details);
+        if (!fromMatcher.find() || fromMatcher.find()
+                || !toMatcher.find() || toMatcher.find()
+                || markerPattern("/by").matcher(details).find()) {
             throw new NiuLaiException(
                     "NOOO!!! An event must look like: event <description> /from <start> /to <end>."
             );
         }
 
-        String description = matcher.group(1).strip();
-        String from = matcher.group(2).strip();
-        String to = matcher.group(3).strip();
+        fromMatcher.reset();
+        toMatcher.reset();
+        fromMatcher.find();
+        toMatcher.find();
+        if (fromMatcher.start() >= toMatcher.start()) {
+            throw new NiuLaiException(
+                    "NOOO!!! An event must look like: event <description> /from <start> /to <end>."
+            );
+        }
+
+        String description = details.substring(0, fromMatcher.start()).strip();
+        String from = details.substring(fromMatcher.end(), toMatcher.start()).strip();
+        String to = details.substring(toMatcher.end()).strip();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new NiuLaiException(
                     "NOOO!!! An event needs a description, a /from time, and a /to time."
             );
         }
 
-        return new Event(description, from, to);
+        try {
+            return new Event(description, from, to);
+        } catch (IllegalArgumentException e) {
+            throw new NiuLaiException("NOOO!!! " + e.getMessage());
+        }
     }
 
     /** Returns the trimmed text after a command name. */
@@ -269,5 +309,42 @@ public class Parser {
         return new NiuLaiException(
                 "NOOO!!! 'find' needs a keyword, such as 'find book', or a date in yyyy-mm-dd format."
         );
+    }
+
+    /** Returns a standard task-number syntax error for the supplied command. */
+    private NiuLaiException invalidTaskNumberError(Command.Type command) {
+        return new NiuLaiException(
+                "NOOO!!! Task numbers must be positive whole numbers, such as '"
+                        + command.getKeyword() + " 1'."
+        );
+    }
+
+    /** Normalizes user input and rejects control characters unsafe for storage or display. */
+    private String normalizeInput(String input) throws NiuLaiException {
+        if (input == null) {
+            throw new NullPointerException("input");
+        }
+
+        for (int i = 0; i < input.length(); i++) {
+            char character = input.charAt(i);
+            if (Character.isISOControl(character) && character != '\t') {
+                throw new NiuLaiException(
+                        "NOOO!!! Commands cannot contain control characters."
+                );
+            }
+        }
+        return HORIZONTAL_WHITESPACE_PATTERN.matcher(input.strip()).replaceAll(" ");
+    }
+
+    /** Returns a pattern matching one standalone command parameter marker. */
+    private Pattern markerPattern(String marker) {
+        return Pattern.compile("(?<!\\S)" + Pattern.quote(marker) + "(?!\\S)");
+    }
+
+    /** Returns whether text contains any standalone task parameter marker. */
+    private boolean containsAnyMarker(String text) {
+        return markerPattern("/by").matcher(text).find()
+                || markerPattern("/from").matcher(text).find()
+                || markerPattern("/to").matcher(text).find();
     }
 }

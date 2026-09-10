@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -45,7 +46,8 @@ public class Deadline extends Task {
             throw new IllegalArgumentException("Deadline time cannot be blank.");
         }
 
-        String value = by.strip();
+        String value = normalizeField(by);
+        TemporalValue.parse(value);
         LocalDateTime parsedDateTime = parseDateTimeValue(value);
         LocalDate parsedDate = parsedDateTime == null ? parseDateValue(value) : null;
 
@@ -138,6 +140,15 @@ public class Deadline extends Task {
      */
     public LocalDateTime getByDateTime() {
         return byDateTime;
+    }
+
+    /** Returns the description and deadline value used for duplicate detection. */
+    @Override
+    protected List<String> getIdentityFields() {
+        return List.of(
+                normalizeIdentityValue(getDescription()),
+                normalizeIdentityValue(getStorageValue())
+        );
     }
 
     /**

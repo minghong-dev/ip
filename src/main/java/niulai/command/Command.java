@@ -3,6 +3,7 @@ package niulai.command;
 import niulai.NiuLaiException;
 import niulai.model.TaskList;
 import niulai.service.Storage;
+import niulai.service.StorageException;
 import niulai.service.Ui;
 
 /**
@@ -58,9 +59,12 @@ public abstract class Command {
         return type.matches(input);
     }
 
-    /** Creates the user-facing error shared by commands when saving fails. */
-    protected static NiuLaiException createStorageFailure() {
-        return new NiuLaiException("NOOO!!! I couldn't save your tasks to disk.");
+    /** Creates a user-facing error while preserving specific expected storage guidance. */
+    protected static NiuLaiException createStorageFailure(Exception cause) {
+        String message = cause instanceof StorageException storageException
+                ? storageException.getUserMessage()
+                : StorageException.SAVE_FAILED_MESSAGE;
+        return new NiuLaiException("NOOO!!! " + message);
     }
 
     /** Describes the keywords understood by the parser. */

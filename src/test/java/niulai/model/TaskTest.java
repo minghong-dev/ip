@@ -39,4 +39,19 @@ class TaskTest {
     void task_blankDescription_exceptionThrown() {
         assertThrows(IllegalArgumentException.class, () -> new Todo("  "));
     }
+
+    /** Verifies that horizontal whitespace is canonicalized in task fields. */
+    @Test
+    void task_repeatedHorizontalWhitespace_collapsedToSingleSpaces() {
+        Task task = new Todo("\t read   the\tbook  ");
+
+        assertEquals("read the book", task.getDescription());
+    }
+
+    /** Verifies that line breaks and other control characters cannot enter task fields. */
+    @Test
+    void task_controlCharacterInDescription_exceptionThrown() {
+        assertThrows(IllegalArgumentException.class, () -> new Todo("first\nsecond"));
+        assertThrows(IllegalArgumentException.class, () -> new Todo("first\u0000second"));
+    }
 }

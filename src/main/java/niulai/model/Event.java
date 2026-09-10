@@ -2,6 +2,7 @@ package niulai.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Represents a task that starts and ends at specified dates or times.
@@ -26,8 +27,14 @@ public class Event extends Task {
             throw new IllegalArgumentException("Event times cannot be blank.");
         }
 
-        this.from = from.strip();
-        this.to = to.strip();
+        this.from = normalizeField(from);
+        this.to = normalizeField(to);
+
+        TemporalValue start = TemporalValue.parse(this.from);
+        TemporalValue end = TemporalValue.parse(this.to);
+        if (!TemporalValue.isEndStrictlyAfter(start, end)) {
+            throw new IllegalArgumentException("An event must end after it starts.");
+        }
     }
 
     /** @return the event task type */
@@ -54,6 +61,16 @@ public class Event extends Task {
         LocalDate endDate = getDate(to);
         return startDate != null && endDate != null
                 && !date.isBefore(startDate) && !date.isAfter(endDate);
+    }
+
+    /** Returns the description and endpoints used for duplicate detection. */
+    @Override
+    protected List<String> getIdentityFields() {
+        return List.of(
+                normalizeIdentityValue(getDescription()),
+                normalizeIdentityValue(from),
+                normalizeIdentityValue(to)
+        );
     }
 
     /** Converts a supported date or date-time string into a date. */

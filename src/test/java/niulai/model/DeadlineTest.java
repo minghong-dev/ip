@@ -49,4 +49,13 @@ class DeadlineTest {
     void deadline_blankValue_exceptionThrown() {
         assertThrows(IllegalArgumentException.class, () -> new Deadline("task", " "));
     }
+
+    /** Verifies that recognizable but impossible deadline values are rejected. */
+    @Test
+    void deadline_impossibleRecognizableValue_exceptionThrown() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Deadline("task", "2026-02-30"));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Deadline("task", "Feb 30"));
+    }
 }

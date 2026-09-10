@@ -30,11 +30,11 @@ public class DialogBox extends HBox {
      */
     private DialogBox(String text, boolean isUser) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(DialogBox.class.getResource("/view/DialogBox.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.requireResource("/view/DialogBox.fxml"));
             fxmlLoader.setController(this);
             fxmlLoader.setRoot(this);
             fxmlLoader.load();
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException e) {
             throw new IllegalStateException("Unable to create a chat dialog.", e);
         }
 

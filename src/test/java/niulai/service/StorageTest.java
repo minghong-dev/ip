@@ -1,11 +1,18 @@
 package niulai.service;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,7 +40,7 @@ class StorageTest {
         saved.add(new Event("meeting", "2026-08-30", "2026-09-02"));
 
         storage.save(saved);
-        TaskList loaded = storage.load();
+        TaskList loaded = storage.load().tasks();
 
         assertEquals(3, loaded.size());
         assertEquals("read | review \\ draft", loaded.get(0).getDescription());
@@ -58,35 +65,174 @@ class StorageTest {
         assertEquals("T | 0 | new task", Files.readString(file).strip());
     }
 
-    /** Verifies that malformed saved data reports an I/O error with its line number. */
+    /** Verifies that malformed and duplicate lines are skipped independently. */
     @Test
-    void load_malformedData_exceptionThrown() throws IOException {
+    void load_mixedValidInvalidAndDuplicateLines_recoversUniqueValidTasks() throws IOException {
         Path file = temporaryDirectory.resolve("niulai.txt");
-        Files.writeString(file, "T | 0 | valid\nD | 0");
+        Files.writeString(file,
+                "T | 0 | first\ninvalid\nT | 1 | FIRST\nD | 0 | report | 2026-09-10");
 
-        IOException exception = assertThrows(IOException.class,
-                () -> new Storage(file.toString()).load());
+        Storage.LoadResult result = new Storage(file.toString()).load();
 
-        assertEquals("Invalid task data on line 2.", exception.getMessage());
+        assertEquals(2, result.tasks().size());
+        assertEquals("first", result.tasks().get(0).getDescription());
+        assertEquals("report", result.tasks().get(1).getDescription());
+        assertEquals(List.of(2, 3), result.issues().stream()
+                .map(Storage.LoadIssue::lineNumber)
+                .toList());
     }
 
-    /** Verifies that an unsupported persisted completion state is rejected. */
+    /** Verifies that an unsupported completion state is reported without losing later records. */
     @Test
-    void load_invalidCompletionState_exceptionThrown() throws IOException {
+    void load_invalidCompletionState_issueReportedAndLaterRecordRecovered() throws IOException {
         Path file = temporaryDirectory.resolve("niulai.txt");
-        Files.writeString(file, "T | 2 | invalid state");
+        Files.writeString(file, "T | 2 | invalid state\nT | 0 | valid task");
 
-        IOException exception = assertThrows(IOException.class,
-                () -> new Storage(file.toString()).load());
+        Storage.LoadResult result = new Storage(file.toString()).load();
 
-        assertEquals("Invalid task data on line 1.", exception.getMessage());
+        assertEquals(1, result.tasks().size());
+        assertEquals("valid task", result.tasks().get(0).getDescription());
+        assertEquals(List.of(1), result.issues().stream()
+                .map(Storage.LoadIssue::lineNumber)
+                .toList());
     }
 
     /** Verifies that a missing data file is treated as an empty task list. */
     @Test
     void load_missingFile_returnsEmptyTaskList() throws IOException {
-        TaskList tasks = new Storage(temporaryDirectory.resolve("missing.txt").toString()).load();
+        Storage.LoadResult result =
+                new Storage(temporaryDirectory.resolve("missing.txt").toString()).load();
 
-        assertEquals(0, tasks.size());
+        assertEquals(0, result.tasks().size());
+        assertEquals(List.of(), result.issues());
+    }
+
+    /** Verifies that recovery saves protect the exact original bytes before replacing the file. */
+    @Test
+    void save_afterPartialRecovery_createsBackupBeforeReplacingData() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        byte[] original = "T | 0 | first\ninvalid".getBytes(StandardCharsets.UTF_8);
+        Files.write(file, original);
+        Storage storage = new Storage(file.toString());
+        Storage.LoadResult result = storage.load();
+
+        storage.save(result.tasks());
+
+        assertArrayEquals(original, Files.readAllBytes(file.resolveSibling("niulai.txt.bak")));
+        assertEquals("T | 0 | first", Files.readString(file).strip());
+    }
+
+    /** Verifies that recovery never replaces an existing backup. */
+    @Test
+    void save_existingBackup_usesNextAvailableBackupName() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        byte[] original = "T | 0 | first\ninvalid".getBytes(StandardCharsets.UTF_8);
+        Files.write(file, original);
+        Path firstBackup = file.resolveSibling("niulai.txt.bak");
+        Files.writeString(firstBackup, "older backup");
+        Storage storage = new Storage(file.toString());
+        Storage.LoadResult result = storage.load();
+
+        storage.save(result.tasks());
+
+        assertEquals("older backup", Files.readString(firstBackup));
+        assertArrayEquals(original, Files.readAllBytes(file.resolveSibling("niulai.txt.bak.1")));
+    }
+
+    /** Verifies that backup failure leaves the damaged data file untouched. */
+    @Test
+    void save_backupCreationFails_exceptionLeavesOriginalFileUntouched() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        byte[] original = "T | 0 | first\ninvalid".getBytes(StandardCharsets.UTF_8);
+        Files.write(file, original);
+        Storage storage = new Storage(file.toString(), Files::move, (backup, bytes) -> {
+            throw new AccessDeniedException(backup.toString());
+        });
+        Storage.LoadResult result = storage.load();
+
+        StorageException exception = assertThrows(StorageException.class,
+                () -> storage.save(result.tasks()));
+
+        assertArrayEquals(original, Files.readAllBytes(file));
+        assertInstanceOf(AccessDeniedException.class, exception.getCause());
+    }
+
+    /** Verifies that invalid UTF-8 blocks writes rather than risking destructive replacement. */
+    @Test
+    void load_invalidUtf8_storageExceptionBlocksLaterSave() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        byte[] invalidUtf8 = {(byte) 0xC3, (byte) 0x28};
+        Files.write(file, invalidUtf8);
+        Storage storage = new Storage(file.toString());
+
+        StorageException loadError = assertThrows(StorageException.class, storage::load);
+        StorageException saveError = assertThrows(StorageException.class,
+                () -> storage.save(new TaskList(new Todo("must not save"))));
+
+        assertEquals(StorageException.READ_BLOCKED_MESSAGE, loadError.getUserMessage());
+        assertEquals(StorageException.READ_BLOCKED_MESSAGE, saveError.getUserMessage());
+        assertArrayEquals(invalidUtf8, Files.readAllBytes(file));
+    }
+
+    /** Verifies that a directory used as the data path produces a typed loading failure. */
+    @Test
+    void load_directoryPath_storageExceptionThrown() {
+        Storage storage = new Storage(temporaryDirectory.toString());
+
+        StorageException exception = assertThrows(StorageException.class, storage::load);
+
+        assertEquals(StorageException.READ_BLOCKED_MESSAGE, exception.getUserMessage());
+    }
+
+    /** Verifies that a file changed after loading is not overwritten. */
+    @Test
+    void save_externalModification_exceptionLeavesExternalFileUntouched() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        Files.writeString(file, "T | 0 | first");
+        Storage storage = new Storage(file.toString());
+        Storage.LoadResult result = storage.load();
+        Files.writeString(file, "T | 0 | externally changed");
+
+        StorageException exception = assertThrows(StorageException.class,
+                () -> storage.save(result.tasks()));
+
+        assertEquals(StorageException.EXTERNAL_CHANGE_MESSAGE, exception.getUserMessage());
+        assertEquals("T | 0 | externally changed", Files.readString(file));
+    }
+
+    /** Verifies that transient Windows access denial during replacement is retried. */
+    @Test
+    void save_transientAccessDeniedDuringMove_retriesAndSucceeds() throws IOException {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        AtomicInteger moveAttempts = new AtomicInteger();
+        Storage storage = new Storage(file.toString(), (source, target, options) -> {
+            if (moveAttempts.incrementAndGet() < 3) {
+                throw new AccessDeniedException(target.toString());
+            }
+            Files.move(source, target, options);
+        });
+
+        storage.save(new TaskList(new Todo("saved after retry")));
+
+        assertEquals(3, moveAttempts.get());
+        assertEquals("T | 0 | saved after retry", Files.readString(file).strip());
+    }
+
+    /** Verifies that persistent access denial remains a save failure after bounded retries. */
+    @Test
+    void save_persistentAccessDeniedDuringMove_exceptionLeavesTargetAbsent() {
+        Path file = temporaryDirectory.resolve("niulai.txt");
+        AtomicInteger moveAttempts = new AtomicInteger();
+        Storage storage = new Storage(file.toString(), (source, target, options) -> {
+            moveAttempts.incrementAndGet();
+            throw new AccessDeniedException(target.toString());
+        });
+
+        StorageException exception = assertThrows(StorageException.class,
+                () -> storage.save(new TaskList(new Todo("cannot save"))));
+
+        assertEquals(5, moveAttempts.get());
+        assertFalse(Files.exists(file));
+        assertInstanceOf(AccessDeniedException.class, exception.getCause());
     }
 }

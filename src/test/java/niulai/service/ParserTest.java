@@ -54,6 +54,33 @@ class ParserTest {
                 exception.getMessage());
     }
 
+    /** Verifies that raw command whitespace is normalized before routing and construction. */
+    @Test
+    void parseCommand_repeatedHorizontalWhitespace_normalized() throws NiuLaiException {
+        Task task = parser.parseTaskCreation("  todo\t read   the\tbook  ");
+
+        assertEquals("read the book", task.getDescription());
+    }
+
+    /** Verifies that no-argument commands reject unexpected text specifically. */
+    @Test
+    void parseCommand_noArgumentCommandWithExtraText_exceptionThrown() {
+        NiuLaiException exception = assertThrows(NiuLaiException.class,
+                () -> parser.parseCommand("list now", 0));
+
+        assertEquals("NOOO!!! 'list' does not take any arguments.", exception.getMessage());
+    }
+
+    /** Verifies that control characters cannot be smuggled through command input. */
+    @Test
+    void parseCommand_controlCharacter_exceptionThrown() {
+        NiuLaiException exception = assertThrows(NiuLaiException.class,
+                () -> parser.parseCommand("todo first\nsecond", 0));
+
+        assertEquals("NOOO!!! Commands cannot contain control characters.",
+                exception.getMessage());
+    }
+
     /** Verifies that a valid ISO date is parsed into the expected date value. */
     @Test
     void parseDateArgument_validDate_returnsLocalDate() throws NiuLaiException {
@@ -113,6 +140,33 @@ class ParserTest {
                 () -> parser.parseTaskCreation("event meeting /from 10am"));
     }
 
+    /** Verifies that creation parameters occur exactly once and in the required order. */
+    @Test
+    void parseTaskCreation_repeatedOrMisorderedParameters_exceptionThrown() {
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation(
+                        "deadline report /by tomorrow /by Friday"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation(
+                        "event meeting /from 10am /from noon /to 1pm"));
+        assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation(
+                        "event meeting /to 11am /from 10am"));
+    }
+
+    /** Verifies that model temporal errors become expected command errors. */
+    @Test
+    void parseTaskCreation_invalidTemporalData_niuLaiExceptionThrown() {
+        NiuLaiException invalidDate = assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("deadline report /by 2026-02-30"));
+        assertEquals("NOOO!!! Invalid date or time: 2026-02-30.",
+                invalidDate.getMessage());
+
+        NiuLaiException invalidRange = assertThrows(NiuLaiException.class,
+                () -> parser.parseTaskCreation("event meeting /from 11am /to 10am"));
+        assertEquals("NOOO!!! An event must end after it starts.", invalidRange.getMessage());
+    }
+
     /** Verifies that the first task number is converted to the first zero-based index. */
     @Test
     void parseTaskIndex_firstTask_returnsZero() throws NiuLaiException {
@@ -145,13 +199,23 @@ class ParserTest {
                 "NOOO!!! Task numbers must be positive whole numbers, such as 'delete 1'.");
     }
 
+    /** Verifies that signs and overflowing numbers receive the numeric-format error. */
+    @Test
+    void parseTaskIndex_signedOrOverflowingNumber_exceptionThrown() {
+        String expectedMessage =
+                "NOOO!!! Task numbers must be positive whole numbers, such as 'mark 1'.";
+
+        assertInvalidTaskIndex("mark +1", Command.Type.MARK, 3, expectedMessage);
+        assertInvalidTaskIndex("mark -1", Command.Type.MARK, 3, expectedMessage);
+        assertInvalidTaskIndex("mark 999999999999999999999", Command.Type.MARK, 3,
+                expectedMessage);
+    }
+
     /** Verifies that zero and negative task numbers are rejected. */
     @Test
     void parseTaskIndex_nonPositiveTaskNumber_exceptionThrown() {
         assertInvalidTaskIndex("mark 0", Command.Type.MARK, 3,
                 "NOOO!!! Task 0 does not exist. Use 'list' to see your tasks.");
-        assertInvalidTaskIndex("mark -1", Command.Type.MARK, 3,
-                "NOOO!!! Task -1 does not exist. Use 'list' to see your tasks.");
     }
 
     /** Verifies that task numbers beyond the available list are rejected. */
