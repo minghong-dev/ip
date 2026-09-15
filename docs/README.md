@@ -4,21 +4,25 @@ NiuLai is a task-management chatbot for keeping track of todos, deadlines, and e
 
 ## Getting started
 
-### Launching the JavaFX GUI
+NiuLai requires Java 25. To start the application:
 
-From the project root, run:
+1. Open the [latest NiuLai release](https://github.com/minghong-dev/ip/releases/latest).
+2. Under **Assets**, download `niulai.jar`.
+3. Move `niulai.jar` into an empty folder. NiuLai will use this folder to store its data.
+4. Open a command window in that folder.
+5. Run:
 
-```powershell
-.\gradlew.bat run
+```text
+java -jar niulai.jar
 ```
 
-The GUI accepts the same commands described in this guide.
+The NiuLai window will open. Type a command in the box at the bottom, then press `Enter` or click **Send**.
 
-### Launching the command-line chatbot
+![NiuLai graphical user interface](Ui.png)
 
-In IntelliJ IDEA, open `src/main/java/niulai/NiuLai.java` and run `NiuLai.main()`.
+If the command window reports that `java` is not recognized, install JDK 25 and make sure Java is available on your system path. JavaFX native-access or deprecation warnings do not prevent NiuLai from starting.
 
-NiuLai requires JDK 25. After the chatbot starts, type a command and press `Enter`.
+The examples below show the text displayed inside the GUI conversation.
 
 ## Creating tasks
 
@@ -170,7 +174,7 @@ Use `bye` to exit NiuLai:
 bye
 ```
 
-Tasks are saved automatically after successful task-list changes and loaded again the next time NiuLai starts. The default data file is `data\\niulai.txt`, relative to the folder from which the application is run.
+Tasks are saved automatically after successful task-list changes and loaded again the next time NiuLai starts. The default data file is `data\niulai.txt`, relative to the folder from which the application is run.
 
 ## Quick reference
 
@@ -188,3 +192,13 @@ Tasks are saved automatically after successful task-list changes and loaded agai
 | `bye` | `bye` |
 
 If a command is malformed or refers to a task number that does not exist, NiuLai displays an error and leaves the task list unchanged.
+
+## Developer launch options
+
+Developers working from the project source can launch the JavaFX GUI from the project root:
+
+```powershell
+.\gradlew.bat run
+```
+
+To run the command-line interface instead, open `src/main/java/niulai/NiuLai.java` in IntelliJ IDEA and run `NiuLai.main()`.
